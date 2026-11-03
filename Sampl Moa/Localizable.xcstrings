@@ -1,0 +1,347 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld samples": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld sample"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld samples"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플 %lld개"
+          }
+        }
+      }
+    },
+    "Account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정"
+          }
+        }
+      }
+    },
+    "Accounts": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정"
+          }
+        }
+      }
+    },
+    "All Samples": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 샘플"
+          }
+        }
+      }
+    },
+    "Allow": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "허용"
+          }
+        }
+      }
+    },
+    "Choose Library Folder…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "라이브러리 폴더 선택…"
+          }
+        }
+      }
+    },
+    "Choose User Folder": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 폴더 선택"
+          }
+        }
+      }
+    },
+    "Finds every Splice folder": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 Splice 폴더를 찾습니다"
+          }
+        }
+      }
+    },
+    "Format": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "형식"
+          }
+        }
+      }
+    },
+    "Length": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길이"
+          }
+        }
+      }
+    },
+    "Looking for samples…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플을 찾는 중…"
+          }
+        }
+      }
+    },
+    "Looks only for the Splice and Splice - user-… folders in your user folder.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 폴더에 있는 Splice, Splice - user-… 폴더만 확인합니다."
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름"
+          }
+        }
+      }
+    },
+    "No Samples Yet": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 샘플이 없습니다"
+          }
+        }
+      }
+    },
+    "No Splice Folders Found": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splice 폴더를 찾지 못했습니다"
+          }
+        }
+      }
+    },
+    "Pack": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팩"
+          }
+        }
+      }
+    },
+    "Read-only": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽기 전용"
+          }
+        }
+      }
+    },
+    "Rescan": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 검색"
+          }
+        }
+      }
+    },
+    "Rescan Library": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "라이브러리 다시 검색"
+          }
+        }
+      }
+    },
+    "Sampl Moa": {
+      "shouldTranslate": false
+    },
+    "Sampl Moa doesn’t use the network, so nothing is uploaded.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네트워크를 사용하지 않으므로 아무것도 업로드되지 않습니다."
+          }
+        }
+      }
+    },
+    "Sampl Moa needs permission to read your user folder so it can gather the samples from all of your Splice accounts in one place.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여러 Splice 계정의 샘플을 한곳에 모으려면 사용자 폴더를 읽을 수 있는 권한이 필요합니다."
+          }
+        }
+      }
+    },
+    "Samples you download from Splice will appear here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splice에서 다운로드한 샘플이 여기에 표시됩니다."
+          }
+        }
+      }
+    },
+    "Search samples and packs": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플과 팩 검색"
+          }
+        }
+      }
+    },
+    "Select your user folder to give Sampl Moa read-only access.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sampl Moa에 읽기 권한을 줄 사용자 폴더를 선택하세요."
+          }
+        }
+      }
+    },
+    "Size": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "크기"
+          }
+        }
+      }
+    },
+    "Splice creates its folder in your user folder after you sign in. Rescan once it’s there.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splice에 로그인하면 사용자 폴더에 Splice 폴더가 만들어집니다. 그 후에 다시 검색해 주세요."
+          }
+        }
+      }
+    },
+    "Stays on your Mac": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 Mac에만 머무릅니다"
+          }
+        }
+      }
+    },
+    "The folder permission couldn’t be saved. Please try again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 권한을 저장하지 못했습니다. 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "Welcome to Sampl Moa": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sampl Moa에 오신 것을 환영합니다"
+          }
+        }
+      }
+    },
+    "Your samples are never changed, moved or deleted.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플을 수정하거나 옮기거나 삭제하지 않습니다."
+          }
+        }
+      }
+    },
+    "Your user folder will already be selected in the next window. Just click Allow.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 창에 사용자 폴더가 미리 선택되어 있습니다. 허용만 누르면 됩니다."
+          }
+        }
+      }
+    },
+    "“%@” doesn’t contain a Splice folder. Please choose your user folder.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” 폴더에는 Splice 폴더가 없습니다. 사용자 폴더를 선택해 주세요."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

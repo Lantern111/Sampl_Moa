@@ -1,17 +1,20 @@
 import SwiftUI
-import Playgrounds
 
 struct ContentView: View {
+    let store: LibraryStore
+
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        Group {
+            if store.hasAccess {
+                LibraryView(store: store)
+            } else {
+                OnboardingView(store: store)
+            }
+        }
+        .frame(minWidth: 860, minHeight: 620)
     }
 }
 
 #Preview {
-    ContentView()
-}
-
-#Playground {
-    _ = 1 + 2
+    ContentView(store: LibraryStore())
 }
