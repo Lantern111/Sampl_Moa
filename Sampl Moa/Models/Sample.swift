@@ -1,66 +1,105 @@
 import Foundation
 
-/// The folder Splice keeps for one account, such as `~/Splice` or `~/Splice - user-0000000000`.
-nonisolated struct SpliceAccount: Identifiable, Hashable, Sendable {
-    let folder: URL
+nonisolated enum SampleSource: Hashable, Sendable {
+    case splice
+    case folder(URL)
+}
 
-    var id: URL { folder }
-
-    var name: String {
-        let folderName = folder.lastPathComponent
-        return folderName.hasPrefix(SpliceFolders.accountFolderPrefix)
-            ? String(folderName.dropFirst("Splice - ".count))
-            : folderName
-    }
+/// Whether a sample's contents are on this Mac, or only in iCloud Drive or another cloud folder.
+nonisolated enum SampleAvailability: Hashable, Sendable {
+    case onThisMac, inCloud, downloading
 }
 
 nonisolated struct Sample: Identifiable, Hashable, Sendable {
     let url: URL
     let name: String
-    let pack: String
-    let accountID: SpliceAccount.ID
-    let accountName: String
-    let format: String
-    let fileSize: Int64
+    /// The Splice pack it came from, or the folder it sits in.
+    let collection: String
+    let source: SampleSource
+    let category: SampleCategory
+    let genres: [SampleGenre]
+    let addedAt: Date
+    /// Normalized text that the search box looks through.
+    let searchText: String
+    var availability: SampleAvailability
     var duration: TimeInterval?
 
     var id: URL { url }
 }
 
+struct SamplePack: Identifiable, Hashable {
+    let name: String
+    let sampleCount: Int
+
+    var id: String { name }
+}
+
+struct SampleFolder: Identifiable, Hashable {
+    let url: URL
+    let sampleCount: Int
+
+    var id: URL { url }
+    var name: String { url.lastPathComponent }
+}
+
+enum LibraryTab: Hashable {
+    case splice, folders
+}
+
+enum LibraryScope: Hashable {
+    case all
+    case pack(String)
+    case folder(URL)
+}
+
 enum SampleColumn: String, CaseIterable {
-    case name, pack, account, duration, format, size
+    case play, name, collection, category, genre, length, added
 
     var title: String {
         switch self {
+        case .play: ""
         case .name: String(localized: "Name")
-        case .pack: String(localized: "Pack")
-        case .account: String(localized: "Account")
-        case .duration: String(localized: "Length")
-        case .format: String(localized: "Format")
-        case .size: String(localized: "Size")
+        case .collection: String(localized: "Pack")
+        case .category: String(localized: "Type")
+        case .genre: String(localized: "Genre")
+        case .length: String(localized: "Length")
+        case .added: String(localized: "Date Added")
         }
     }
 }
 
 struct SampleSort: Equatable {
-    var column = SampleColumn.name
-    var ascending = true
+    var column = SampleColumn.added
+    var ascending = false
 
     func areInOrder(_ lhs: Sample, _ rhs: Sample) -> Bool {
         let result: ComparisonResult = switch column {
-        case .name: lhs.name.localizedStandardCompare(rhs.name)
-        case .pack: lhs.pack.localizedStandardCompare(rhs.pack)
-        case .account: lhs.accountName.localizedStandardCompare(rhs.accountName)
-        case .duration: Self.compare(lhs.duration ?? -1, rhs.duration ?? -1)
-        case .format: lhs.format.compare(rhs.format)
-        case .size: Self.compare(lhs.fileSize, rhs.fileSize)
+        case .play, .name: .orderedSame
+        case .collection: lhs.collection.localizedStandardCompare(rhs.collection)
+        case .category: lhs.category.title.localizedStandardCompare(rhs.category.title)
+        case .genre: (lhs.genres.first?.title ?? "").localizedStandardCompare(rhs.genres.first?.title ?? "")
+        case .length: Self.compare(lhs.duration ?? -1, rhs.duration ?? -1)
+        case .added: Self.compare(lhs.addedAt, rhs.addedAt)
         }
+        if result != .orderedSame {
+            return result == (ascending ? .orderedAscending : .orderedDescending)
+        }
+
         // Keeps equal rows from swapping places whenever the list refreshes.
-        if result == .orderedSame { return lhs.url.path < rhs.url.path }
-        return result == (ascending ? .orderedAscending : .orderedDescending)
+        let byName = lhs.name.localizedStandardCompare(rhs.name)
+        if byName != .orderedSame {
+            return byName == (ascending || column != .name ? .orderedAscending : .orderedDescending)
+        }
+        return lhs.url.path < rhs.url.path
     }
 
     private static func compare<Value: Comparable>(_ lhs: Value, _ rhs: Value) -> ComparisonResult {
         lhs == rhs ? .orderedSame : (lhs < rhs ? .orderedAscending : .orderedDescending)
     }
+}
+
+/// Formats a length as `0:03`, rounding up so a short one-shot never reads `0:00`.
+func formattedLength(_ duration: TimeInterval) -> String {
+    let seconds = Int(duration.rounded(.up))
+    return String(format: "%d:%02d", seconds / 60, seconds % 60)
 }

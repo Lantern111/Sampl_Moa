@@ -3,59 +3,134 @@ import Foundation
 
 nonisolated enum SampleScanner {
     struct Result: Sendable {
-        let accounts: [SpliceAccount]
+        let foundSpliceFolder: Bool
         let samples: [Sample]
     }
 
     private static let audioExtensions: Set<String> = [
         "wav", "aif", "aiff", "aifc", "mp3", "m4a", "aac", "flac", "caf", "ogg",
     ]
+    private static let keys: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey, .creationDateKey]
 
-    @concurrent static func scan(root: URL) async -> Result {
-        let accounts = SpliceFolders.locate(in: root).map(SpliceAccount.init(folder:))
-        return Result(accounts: accounts, samples: accounts.flatMap(samples(in:)))
+    @concurrent static func scan(home: URL, folders: [URL]) async -> Result {
+        let spliceFolders = SpliceFolders.locate(in: home)
+        let spliceInfo = spliceFolders.isEmpty ? [:] : SpliceDatabase.loadSampleInfo(home: home)
+
+        // The same pack downloaded from two accounts should only show up once.
+        var seenSpliceSamples: Set<String> = []
+        var samples = spliceFolders.flatMap { samples(inSplice: $0, info: spliceInfo, seen: &seenSpliceSamples) }
+
+        // Added folders may overlap each other, so a file is only listed the first time it's found.
+        var seenPaths: Set<String> = []
+        for folder in folders where !Task.isCancelled {
+            samples += self.samples(inFolder: folder, seen: &seenPaths)
+        }
+        return Result(foundSpliceFolder: !spliceFolders.isEmpty, samples: samples)
     }
 
     @concurrent static func readDurations(of urls: [URL]) async -> [TimeInterval?] {
-        urls.map(readDuration(of:))
+        urls.map { CloudFiles.isOnThisMac($0) ? readDuration(of: $0) : nil }
     }
 
-    private static func samples(in account: SpliceAccount) -> [Sample] {
+    private static func samples(
+        inSplice spliceFolder: URL,
+        info: [String: SpliceSampleInfo],
+        seen: inout Set<String>
+    ) -> [Sample] {
         // Only `sounds` holds downloads. `INSTRUMENT` and `presets` belong to Splice's plugins.
-        let sounds = account.folder.appending(path: "sounds", directoryHint: .isDirectory)
-        let keys: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey]
+        let sounds = spliceFolder.appending(path: "sounds", directoryHint: .isDirectory)
+
+        return audioFiles(in: sounds).compactMap { url, values in
+            // Splice stores samples as `sounds/packs/<pack>/<folders…>/<file>`.
+            var folders = Array(url.pathComponents.dropFirst(sounds.pathComponents.count).dropLast())
+            if folders.first == "packs" { folders.removeFirst() }
+            let pack = folders.isEmpty ? url.deletingLastPathComponent().lastPathComponent : folders.removeFirst()
+
+            guard seen.insert("\(pack)/\(url.lastPathComponent)/\(values.fileSize ?? 0)").inserted else { return nil }
+
+            let name = url.deletingPathExtension().lastPathComponent
+            let details = info[url.lastPathComponent.lowercased()]
+            let genres = details.map { SampleGenre.from(tags: $0.tags, packGenre: $0.packGenre) }
+                ?? SampleGenre.guess(fileName: name, folders: [pack] + folders)
+            let category = SampleCategory.classify(
+                fileName: name,
+                folders: folders,
+                tags: details?.tags ?? [],
+                isLoop: details?.isLoop ?? false,
+                pack: pack
+            )
+
+            return makeSample(
+                url: url, name: name, collection: pack, source: .splice, category: category, genres: genres,
+                extraSearchText: details?.tags.joined(separator: " ") ?? "", values: values
+            )
+        }
+    }
+
+    private static func samples(inFolder folder: URL, seen: inout Set<String>) -> [Sample] {
+        audioFiles(in: folder).compactMap { url, values in
+            guard seen.insert(url.standardizedFileURL.path).inserted else { return nil }
+
+            let folders = Array(url.pathComponents.dropFirst(folder.pathComponents.count).dropLast())
+            let name = url.deletingPathExtension().lastPathComponent
+
+            return makeSample(
+                url: url,
+                name: name,
+                collection: folders.last ?? folder.lastPathComponent,
+                source: .folder(folder),
+                category: SampleCategory.classify(fileName: name, folders: folders, pack: folder.lastPathComponent),
+                genres: SampleGenre.guess(fileName: name, folders: [folder.lastPathComponent] + folders),
+                extraSearchText: folders.joined(separator: " "),
+                values: values
+            )
+        }
+    }
+
+    /// Every audio file under a folder, including its subfolders.
+    private static func audioFiles(in folder: URL) -> [(URL, URLResourceValues)] {
         guard let enumerator = FileManager.default.enumerator(
-            at: sounds,
+            at: folder,
             includingPropertiesForKeys: keys,
             options: [.skipsHiddenFiles, .skipsPackageDescendants]
         ) else { return [] }
 
-        var samples: [Sample] = []
+        var files: [(URL, URLResourceValues)] = []
         for case let url as URL in enumerator {
-            let format = url.pathExtension.lowercased()
-            guard audioExtensions.contains(format),
+            guard audioExtensions.contains(url.pathExtension.lowercased()),
                   let values = try? url.resourceValues(forKeys: Set(keys)),
                   values.isRegularFile == true
             else { continue }
-
-            samples.append(Sample(
-                url: url,
-                name: url.deletingPathExtension().lastPathComponent,
-                pack: packName(of: url, in: sounds),
-                accountID: account.id,
-                accountName: account.name,
-                format: format.uppercased(),
-                fileSize: Int64(values.fileSize ?? 0)
-            ))
+            files.append((url, values))
         }
-        return samples
+        return files
     }
 
-    /// Splice stores samples as `sounds/packs/<pack>/…`.
-    private static func packName(of url: URL, in sounds: URL) -> String {
-        let relative = url.pathComponents.dropFirst(sounds.pathComponents.count).dropLast()
-        if relative.first == "packs", let pack = relative.dropFirst().first { return pack }
-        return url.deletingLastPathComponent().lastPathComponent
+    private static func makeSample(
+        url: URL,
+        name: String,
+        collection: String,
+        source: SampleSource,
+        category: SampleCategory,
+        genres: [SampleGenre],
+        extraSearchText: String,
+        values: URLResourceValues
+    ) -> Sample {
+        let genreText = genres.flatMap { [$0.id, $0.title] + $0.aliases }.joined(separator: " ")
+        let searchText = [name, collection, category.title, category.searchTerms, genreText, extraSearchText]
+            .joined(separator: " ")
+
+        return Sample(
+            url: url,
+            name: name,
+            collection: collection,
+            source: source,
+            category: category,
+            genres: genres,
+            addedAt: values.creationDate ?? .distantPast,
+            searchText: SampleSearch.normalize(searchText),
+            availability: CloudFiles.isOnThisMac(url) ? .onThisMac : .inCloud
+        )
     }
 
     private static func readDuration(of url: URL) -> TimeInterval? {
@@ -69,5 +144,12 @@ nonisolated enum SampleScanner {
             return nil
         }
         return duration
+    }
+}
+
+nonisolated enum SampleSearch {
+    /// Makes text comparable regardless of case and of how macOS happened to compose Korean file names.
+    static func normalize(_ text: String) -> String {
+        text.precomposedStringWithCanonicalMapping.lowercased()
     }
 }

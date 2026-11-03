@@ -4,19 +4,26 @@ import SwiftUI
     @State private var store = LibraryStore()
 
     var body: some Scene {
-        Window("Sampl Moa", id: "main") {
+        Window("Sampl Moa", id: "samples") {
             ContentView(store: store)
         }
-        .defaultSize(width: 1080, height: 680)
+        .defaultSize(width: 1400, height: 880)
         .commands {
+            SidebarCommands()
+
             CommandGroup(after: .newItem) {
+                Button("Add Samples…") {
+                    Task { await store.addFolders() }
+                }
+                .keyboardShortcut("o")
+
                 Button("Rescan Library", action: store.rescan)
                     .keyboardShortcut("r")
-                    .disabled(!store.hasAccess || store.isScanning)
+                    .disabled(store.isScanning)
+            }
 
-                Button("Choose Library Folder…") {
-                    Task { await store.chooseFolder() }
-                }
+            CommandMenu("Playback") {
+                Button("Play or Pause", action: store.togglePlaybackOfSelection)
             }
         }
     }

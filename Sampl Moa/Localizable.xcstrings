@@ -29,22 +29,82 @@
         }
       }
     },
-    "Account": {
+    "808 & Bass": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정"
+            "value": "808·베이스"
           }
         }
       }
     },
-    "Accounts": {
+    "Add": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정"
+            "value": "추가"
+          }
+        }
+      }
+    },
+    "Add Samples": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플 추가"
+          }
+        }
+      }
+    },
+    "Add Samples…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플 추가…"
+          }
+        }
+      }
+    },
+    "Add Your Own Samples": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 샘플을 추가해 보세요"
+          }
+        }
+      }
+    },
+    "Add a folder of samples": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플이 들어 있는 폴더를 추가합니다"
+          }
+        }
+      }
+    },
+    "All": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체"
+          }
+        }
+      }
+    },
+    "All Genres": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 장르"
           }
         }
       }
@@ -59,52 +119,192 @@
         }
       }
     },
-    "Allow": {
+    "Choose a folder and every audio file in it, including subfolders, will appear here.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "허용"
+            "value": "폴더를 선택하면 하위 폴더까지 모든 오디오 파일이 여기에 나타나요."
           }
         }
       }
     },
-    "Choose Library Folder…": {
+    "Choose a folder. All the audio files in it and its subfolders will be added.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "라이브러리 폴더 선택…"
+            "value": "폴더를 선택하세요. 하위 폴더까지 모든 오디오 파일이 추가됩니다."
           }
         }
       }
     },
-    "Choose User Folder": {
+    "Clap": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "사용자 폴더 선택"
+            "value": "클랩"
           }
         }
       }
     },
-    "Finds every Splice folder": {
+    "Clear Filters": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 Splice 폴더를 찾습니다"
+            "value": "필터 지우기"
           }
         }
       }
     },
-    "Format": {
+    "Close Player": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "형식"
+            "value": "재생 바 닫기"
+          }
+        }
+      }
+    },
+    "Cymbal": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "심벌"
+          }
+        }
+      }
+    },
+    "Date Added": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "받은 날짜"
+          }
+        }
+      }
+    },
+    "Download from iCloud": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud에서 내려받기"
+          }
+        }
+      }
+    },
+    "Download samples in the Splice app and they’ll show up here automatically.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splice 앱에서 샘플을 다운로드하면 여기에 자동으로 나타나요."
+          }
+        }
+      }
+    },
+    "Downloading from iCloud…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud에서 내려받는 중…"
+          }
+        }
+      }
+    },
+    "Drag into your project": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끌어서 프로젝트에 넣기"
+          }
+        }
+      }
+    },
+    "Drum Loop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "드럼 루프"
+          }
+        }
+      }
+    },
+    "FX": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FX"
+          }
+        }
+      }
+    },
+    "Find a Pack": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팩 찾기"
+          }
+        }
+      }
+    },
+    "Folder": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더"
+          }
+        }
+      }
+    },
+    "Folders": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더"
+          }
+        }
+      }
+    },
+    "Genre": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장르"
+          }
+        }
+      }
+    },
+    "Hi-hat": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "하이햇"
+          }
+        }
+      }
+    },
+    "Kick": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "킥"
           }
         }
       }
@@ -119,7 +319,17 @@
         }
       }
     },
-    "Looking for samples…": {
+    "Library": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보관함"
+          }
+        }
+      }
+    },
+    "Looking for your samples…": {
       "localizations": {
         "ko": {
           "stringUnit": {
@@ -129,12 +339,22 @@
         }
       }
     },
-    "Looks only for the Splice and Splice - user-… folders in your user folder.": {
+    "Melodic": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "사용자 폴더에 있는 Splice, Splice - user-… 폴더만 확인합니다."
+            "value": "멜로디"
+          }
+        }
+      }
+    },
+    "My Folders": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 폴더"
           }
         }
       }
@@ -149,22 +369,42 @@
         }
       }
     },
-    "No Samples Yet": {
+    "No Audio Files Found": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아직 샘플이 없습니다"
+            "value": "오디오 파일을 찾지 못했어요"
           }
         }
       }
     },
-    "No Splice Folders Found": {
+    "No Matching Samples": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Splice 폴더를 찾지 못했습니다"
+            "value": "조건에 맞는 샘플이 없어요"
+          }
+        }
+      }
+    },
+    "No Splice Samples Found": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splice 샘플을 찾지 못했어요"
+          }
+        }
+      }
+    },
+    "Other": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기타"
           }
         }
       }
@@ -179,22 +419,102 @@
         }
       }
     },
-    "Read-only": {
+    "Packs": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "읽기 전용"
+            "value": "팩"
           }
         }
       }
     },
-    "Rescan": {
+    "Pause": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다시 검색"
+            "value": "일시정지"
+          }
+        }
+      }
+    },
+    "Percussion": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "퍼커션"
+          }
+        }
+      }
+    },
+    "Play": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생"
+          }
+        }
+      }
+    },
+    "Play (Space)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 (스페이스바)"
+          }
+        }
+      }
+    },
+    "Play or Pause": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생/일시정지"
+          }
+        }
+      }
+    },
+    "Play or Pause (Space)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생/일시정지 (스페이스바)"
+          }
+        }
+      }
+    },
+    "Playback": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생"
+          }
+        }
+      }
+    },
+    "Press Space to preview · Drag into your project": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스페이스바로 미리듣기 · 끌어서 프로젝트에 넣기"
+          }
+        }
+      }
+    },
+    "Remove from List": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록에서 제거"
           }
         }
       }
@@ -212,132 +532,82 @@
     "Sampl Moa": {
       "shouldTranslate": false
     },
-    "Sampl Moa doesn’t use the network, so nothing is uploaded.": {
+    "Search names, packs, genres": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "네트워크를 사용하지 않으므로 아무것도 업로드되지 않습니다."
+            "value": "이름, 팩, 장르 검색"
           }
         }
       }
     },
-    "Sampl Moa needs permission to read your user folder so it can gather the samples from all of your Splice accounts in one place.": {
+    "Show in Finder": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여러 Splice 계정의 샘플을 한곳에 모으려면 사용자 폴더를 읽을 수 있는 권한이 필요합니다."
+            "value": "Finder에서 보기"
           }
         }
       }
     },
-    "Samples you download from Splice will appear here.": {
+    "Snare": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Splice에서 다운로드한 샘플이 여기에 표시됩니다."
+            "value": "스네어"
           }
         }
       }
     },
-    "Search samples and packs": {
+    "The folders you added don’t contain any audio files.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "샘플과 팩 검색"
+            "value": "추가한 폴더에 오디오 파일이 없어요."
           }
         }
       }
     },
-    "Select your user folder to give Sampl Moa read-only access.": {
+    "This file can’t be previewed.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sampl Moa에 읽기 권한을 줄 사용자 폴더를 선택하세요."
+            "value": "이 파일은 미리 들을 수 없어요."
           }
         }
       }
     },
-    "Size": {
+    "Type": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "크기"
+            "value": "종류"
           }
         }
       }
     },
-    "Splice creates its folder in your user folder after you sign in. Rescan once it’s there.": {
+    "Vocal": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Splice에 로그인하면 사용자 폴더에 Splice 폴더가 만들어집니다. 그 후에 다시 검색해 주세요."
+            "value": "보컬"
           }
         }
       }
     },
-    "Stays on your Mac": {
+    "Volume": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "내 Mac에만 머무릅니다"
-          }
-        }
-      }
-    },
-    "The folder permission couldn’t be saved. Please try again.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "폴더 권한을 저장하지 못했습니다. 다시 시도해 주세요."
-          }
-        }
-      }
-    },
-    "Welcome to Sampl Moa": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sampl Moa에 오신 것을 환영합니다"
-          }
-        }
-      }
-    },
-    "Your samples are never changed, moved or deleted.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "샘플을 수정하거나 옮기거나 삭제하지 않습니다."
-          }
-        }
-      }
-    },
-    "Your user folder will already be selected in the next window. Just click Allow.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다음 창에 사용자 폴더가 미리 선택되어 있습니다. 허용만 누르면 됩니다."
-          }
-        }
-      }
-    },
-    "“%@” doesn’t contain a Splice folder. Please choose your user folder.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“%@” 폴더에는 Splice 폴더가 없습니다. 사용자 폴더를 선택해 주세요."
+            "value": "음량"
           }
         }
       }

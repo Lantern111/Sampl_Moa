@@ -1,12 +1,12 @@
 import AppKit
 import Darwin
 
-/// Holds the read-only permission for the folder the user chose in the open panel.
-/// The sandbox grants that access only for the current launch, so it's kept in a security-scoped bookmark.
+/// Remembers the folders the user added. Each stays readable across launches through a security-scoped bookmark,
+/// which is what makes folders outside the user's home, such as on an external drive, keep working.
 final class FolderAccess {
-    private static let bookmarkKey = "libraryRootBookmark"
+    private static let bookmarksKey = "addedFolderBookmarks"
 
-    private var scopedURL: URL?
+    private var scopedURLs: [URL] = []
 
     /// The user's real home folder. Inside the sandbox, `FileManager` reports the app's container instead.
     static var userHome: URL {
@@ -16,52 +16,63 @@ final class FolderAccess {
         return FileManager.default.homeDirectoryForCurrentUser
     }
 
-    /// Returns the folder approved on an earlier launch, or `nil` if the permission is missing or no longer valid.
-    func restore() -> URL? {
-        guard let bookmark = UserDefaults.standard.data(forKey: Self.bookmarkKey) else { return nil }
-
-        var isStale = false
-        guard let url = try? URL(
-            resolvingBookmarkData: bookmark,
-            options: .withSecurityScope,
-            relativeTo: nil,
-            bookmarkDataIsStale: &isStale
-        ), url.startAccessingSecurityScopedResource() else {
-            UserDefaults.standard.removeObject(forKey: Self.bookmarkKey)
-            return nil
-        }
-
-        scopedURL = url
-        if isStale { try? save(url) }
-        return url
+    private var bookmarks: [String: Data] {
+        get { UserDefaults.standard.dictionary(forKey: Self.bookmarksKey) as? [String: Data] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: Self.bookmarksKey) }
     }
 
-    /// Shows the open panel with the user's home folder already selected.
-    func chooseFolder() async -> URL? {
+    func restoreFolders() -> [URL] {
+        bookmarks.values.compactMap { bookmark in
+            var isStale = false
+            guard let url = try? URL(
+                resolvingBookmarkData: bookmark,
+                options: .withSecurityScope,
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            ) else { return nil }
+
+            startAccessing(url)
+            if isStale { save(url) }
+            return url
+        }
+        .sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+    }
+
+    func chooseFolders() async -> [URL] {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        panel.directoryURL = Self.userHome
-        panel.message = String(localized: "Select your user folder to give Sampl Moa read-only access.")
-        panel.prompt = String(localized: "Allow")
+        panel.allowsMultipleSelection = true
+        panel.message = String(localized: "Choose a folder. All the audio files in it and its subfolders will be added.")
+        panel.prompt = String(localized: "Add")
 
-        guard await panel.begin() == .OK else { return nil }
-        return panel.url
+        guard await panel.begin() == .OK else { return [] }
+        return panel.urls
     }
 
-    /// Remembers `url` for later launches. Stays read-only so the app can't alter the user's samples.
-    func save(_ url: URL) throws {
-        let bookmark = try url.bookmarkData(
+    func add(_ url: URL) {
+        startAccessing(url)
+        save(url)
+    }
+
+    func remove(_ url: URL) {
+        bookmarks[url.standardizedFileURL.path] = nil
+        if let index = scopedURLs.firstIndex(of: url) {
+            scopedURLs.remove(at: index).stopAccessingSecurityScopedResource()
+        }
+    }
+
+    private func startAccessing(_ url: URL) {
+        if url.startAccessingSecurityScopedResource() { scopedURLs.append(url) }
+    }
+
+    /// Stays read-only so the app can't alter the user's samples.
+    private func save(_ url: URL) {
+        let bookmark = try? url.bookmarkData(
             options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
             includingResourceValuesForKeys: nil,
             relativeTo: nil
         )
-        UserDefaults.standard.set(bookmark, forKey: Self.bookmarkKey)
-    }
-
-    func replaceScopedURL(with url: URL) {
-        scopedURL?.stopAccessingSecurityScopedResource()
-        scopedURL = url.startAccessingSecurityScopedResource() ? url : nil
+        bookmarks[url.standardizedFileURL.path] = bookmark
     }
 }
