@@ -17,6 +17,8 @@
 
 Sampl Moa is a free Mac app that gathers the samples scattered across your computer, so you can hear them instantly and drag them straight into your project.
 
+<img src="docs/screenshot-en.png" width="800" alt="The Sampl Moa window: a list of samples with filters by type and genre, packs in the sidebar, and a player showing a waveform.">
+
 ### Features
 
 - **Connects automatically:** Finds the samples you've downloaded with Splice, even if you use more than one Splice account.
@@ -71,6 +73,8 @@ Move Sampl Moa from the Applications folder to the Trash. Your samples stay wher
 ## 한국어
 
 Sampl Moa는 컴퓨터 곳곳에 흩어진 샘플을 한곳에 모아, 바로 듣고 작업 중인 앱으로 끌어다 놓을 수 있는 무료 Mac 앱입니다.
+
+<img src="docs/screenshot-ko.png" width="800" alt="Sampl Moa 창: 종류와 장르로 거를 수 있는 샘플 목록, 사이드바의 팩 목록, 파형을 보여 주는 플레이어.">
 
 ### 주요 기능
 
@@ -131,6 +135,14 @@ Xcode 27.2 이상이 필요합니다. `Sampl Moa.xcodeproj`를 열고 실행하�
 
 - `Scripts/make-release.sh` builds the disk image and `appcast.xml` in `dist/`. It needs the update signing key in your Keychain.
 - `Scripts/feedback-form.gs` creates the bug report form with Google Apps Script.
+
+## Copyright / 저작권
+
+Copyright © 2026 Lantern111. All rights reserved.
+
+The source code is public so you can read it. Apart from what GitHub's Terms of Service allow, such as viewing and forking it on GitHub, you may not use, copy, modify, or redistribute it without permission. Sparkle keeps its own license, which is shown in the app's About window.
+
+소스 코드는 읽어 볼 수 있도록 공개되어 있습니다. GitHub 이용 약관이 허용하는 범위(GitHub에서 보기와 포크)를 제외하면, 허락 없이 사용, 복사, 수정, 재배포할 수 없습니다. Sparkle은 자체 라이선스를 유지하며, 앱 정보 창에서 볼 수 있습니다.
 
 ---
 
