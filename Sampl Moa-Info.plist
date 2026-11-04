@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUEnableDownloaderService</key>
@@ -12,5 +14,7 @@
 	<string>https://github.com/Lantern111/Sampl_Moa/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>ImMwy005jVXg5Nn7BQ03WWYtzXPtmUmIQuBVPiIkuow=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>3600</integer>
 </dict>
 </plist>

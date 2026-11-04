@@ -1,8 +1,11 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 /// Explains the app in a few lines. Shown once on first launch, and again from the Help menu.
 struct WelcomeView: View {
+    let updater: SPUUpdater
+
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -41,6 +44,9 @@ struct WelcomeView: View {
                     systemImage: "hand.draw"
                 )
             }
+
+            AutomaticUpdatesToggle(updater: updater)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Button {
                 dismiss()

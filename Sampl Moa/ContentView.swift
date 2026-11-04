@@ -1,8 +1,10 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 struct ContentView: View {
     @Bindable var store: LibraryStore
+    let updater: SPUUpdater
 
     @AppStorage("hasSeenWelcome") private var hasSeenWelcome = false
     @State private var keyMonitor: Any?
@@ -41,7 +43,7 @@ struct ContentView: View {
         .frame(minWidth: 1000, minHeight: 620)
         .background(WindowReader(window: $window))
         .sheet(isPresented: Binding(get: { !hasSeenWelcome }, set: { hasSeenWelcome = !$0 })) {
-            WelcomeView()
+            WelcomeView(updater: updater)
         }
         .onAppear(perform: startListeningForPlaybackKeys)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
@@ -100,5 +102,8 @@ private struct WindowReader: NSViewRepresentable {
 }
 
 #Preview {
-    ContentView(store: LibraryStore())
+    ContentView(
+        store: LibraryStore(),
+        updater: SPUStandardUpdaterController(startingUpdater: false, updaterDelegate: nil, userDriverDelegate: nil).updater
+    )
 }

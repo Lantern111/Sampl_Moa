@@ -229,6 +229,16 @@
         }
       }
     },
+    "Download and install updates automatically": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트를 자동으로 내려받아 설치"
+          }
+        }
+      }
+    },
     "Download from iCloud": {
       "localizations": {
         "ko": {
@@ -475,6 +485,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "이름"
+          }
+        }
+      }
+    },
+    "New versions install when you quit Sampl Moa.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 버전은 Sampl Moa를 종료할 때 설치돼요."
           }
         }
       }

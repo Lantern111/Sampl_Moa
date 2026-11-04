@@ -13,7 +13,7 @@ import SwiftUI
 
     var body: some Scene {
         Window("Sampl Moa", id: "samples") {
-            ContentView(store: store)
+            ContentView(store: store, updater: updaterController.updater)
         }
         .defaultSize(width: 1400, height: 880)
         .commands {
@@ -50,7 +50,7 @@ import SwiftUI
         }
 
         Settings {
-            SettingsView()
+            SettingsView(updater: updaterController.updater)
         }
     }
 }

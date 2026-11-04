@@ -1,7 +1,10 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 struct SettingsView: View {
+    let updater: SPUUpdater
+
     @State private var language = AppLanguage.saved
 
     var body: some View {
@@ -25,6 +28,8 @@ struct SettingsView: View {
                     Button("Restart Now", action: restart)
                 }
             }
+
+            AutomaticUpdatesToggle(updater: updater)
         }
         .formStyle(.grouped)
         .frame(width: 460)
