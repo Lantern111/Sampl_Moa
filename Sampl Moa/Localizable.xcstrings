@@ -639,6 +639,16 @@
         }
       }
     },
+    "Report a Bug…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버그 신고…"
+          }
+        }
+      }
+    },
     "Rescan Library": {
       "localizations": {
         "ko": {

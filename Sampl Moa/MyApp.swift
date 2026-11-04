@@ -42,6 +42,10 @@ import SwiftUI
                 Button("Getting Started with Sampl Moa") {
                     hasSeenWelcome = false
                 }
+
+                Button("Report a Bug…") {
+                    BugReport.open()
+                }
             }
         }
 
