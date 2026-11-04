@@ -17,6 +17,12 @@ output_dir="${RELEASE_OUTPUT_DIR:-$root/dist}"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
+# SwiftPM records absolute paths in this file, so it goes stale when the project folder moves. It gets rebuilt.
+package_state="$packages/workspace-state.json"
+if [[ -f "$package_state" ]] && ! grep -qF "$packages/" "$package_state"; then
+    rm "$package_state"
+fi
+
 xcodebuild -quiet \
     -project "$root/Sampl Moa.xcodeproj" \
     -scheme "Sampl Moa" \
@@ -35,14 +41,15 @@ app="$work/build/Build/Products/Release/Sampl Moa.app"
 codesign --verify --deep --strict "$app"
 version="$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")"
 
+# Runs through python because the installed dmgbuild command stops working when the project folder moves.
 tools="$root/.build/dmgtools"
-if [[ ! -x "$tools/bin/dmgbuild" ]]; then
-    python3 -m venv "$tools"
-    "$tools/bin/pip" install --quiet --disable-pip-version-check dmgbuild==1.6.7 ds-store==1.3.3 mac-alias==2.2.3
+if ! "$tools/bin/python" -c "import dmgbuild" 2>/dev/null; then
+    python3 -m venv --clear "$tools"
+    "$tools/bin/python" -m pip install --quiet --disable-pip-version-check dmgbuild==1.6.7 ds-store==1.3.3 mac-alias==2.2.3
 fi
 
 xcrun swift "$root/Scripts/dmg-background.swift" "$root/Sampl Moa/Assets.xcassets/LogoMark.imageset/logo.svg" "$work"
-"$tools/bin/dmgbuild" \
+"$tools/bin/python" -m dmgbuild \
     -s "$root/Scripts/dmg-settings.py" \
     -D app="$app" \
     -D guide="$root/Scripts/HowToOpen.txt" \
