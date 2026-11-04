@@ -4,7 +4,9 @@ import SwiftUI
 struct ContentView: View {
     @Bindable var store: LibraryStore
 
+    @AppStorage("hasSeenWelcome") private var hasSeenWelcome = false
     @State private var keyMonitor: Any?
+    @State private var window: NSWindow?
 
     var body: some View {
         NavigationSplitView {
@@ -16,7 +18,7 @@ struct ContentView: View {
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         Picker("Library", selection: $store.tab) {
-                            Text(verbatim: "Splice").tag(LibraryTab.splice)
+                            Text("Samples").tag(LibraryTab.splice)
                             Text("My Folders").tag(LibraryTab.folders)
                         }
                         .pickerStyle(.segmented)
@@ -37,6 +39,10 @@ struct ContentView: View {
                 .onSubmit(of: .search, store.requestListFocus)
         }
         .frame(minWidth: 1000, minHeight: 620)
+        .background(WindowReader(window: $window))
+        .sheet(isPresented: Binding(get: { !hasSeenWelcome }, set: { hasSeenWelcome = !$0 })) {
+            WelcomeView()
+        }
         .onAppear(perform: startListeningForPlaybackKeys)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             store.refreshIfIdle()
@@ -44,12 +50,14 @@ struct ContentView: View {
     }
 
     /// Space, Left and Right should work wherever the focus is, except while typing in a search field. An empty field
-    /// doesn't count, since there's nothing to edit there yet and a field can hold focus right after launch.
+    /// doesn't count, since there's nothing to edit there yet and a field can hold focus right after launch. Settings
+    /// and the welcome sheet are left alone, because these keys operate their own controls.
     private func startListeningForPlaybackKeys() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             let spaceKey: UInt16 = 49, leftArrow: UInt16 = 123, rightArrow: UInt16 = 124
-            guard [spaceKey, leftArrow, rightArrow].contains(event.keyCode),
+            guard event.window === window,
+                  [spaceKey, leftArrow, rightArrow].contains(event.keyCode),
                   event.modifierFlags.isDisjoint(with: [.command, .control, .option, .shift])
             else { return event }
             if let editor = event.window?.firstResponder as? NSTextView, !editor.string.isEmpty { return event }
@@ -64,6 +72,29 @@ struct ContentView: View {
                 store.selectNextSample()
             }
             return nil
+        }
+    }
+}
+
+/// Reports which window a view is in.
+private struct WindowReader: NSViewRepresentable {
+    @Binding var window: NSWindow?
+
+    func makeNSView(context: Context) -> ReportingView {
+        let view = ReportingView()
+        view.onMove = { newWindow in
+            DispatchQueue.main.async { window = newWindow }
+        }
+        return view
+    }
+
+    func updateNSView(_ view: ReportingView, context: Context) {}
+
+    final class ReportingView: NSView {
+        var onMove: ((NSWindow?) -> Void)?
+
+        override func viewDidMoveToWindow() {
+            onMove?(window)
         }
     }
 }

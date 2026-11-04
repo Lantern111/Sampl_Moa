@@ -69,6 +69,16 @@
         }
       }
     },
+    "Add Your Own Folders": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 폴더도 추가할 수 있어요"
+          }
+        }
+      }
+    },
     "Add Your Own Samples": {
       "localizations": {
         "ko": {
@@ -119,6 +129,26 @@
         }
       }
     },
+    "All your samples in one place, ready to hear and use.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "흩어진 샘플을 한곳에 모아 바로 듣고 바로 쓸 수 있어요."
+          }
+        }
+      }
+    },
+    "Check for Updates…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트 확인…"
+          }
+        }
+      }
+    },
     "Choose a folder and every audio file in it, including subfolders, will appear here.": {
       "localizations": {
         "ko": {
@@ -155,6 +185,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "필터 지우기"
+          }
+        }
+      }
+    },
+    "Click Add Samples and choose a folder. All its audio files, including subfolders, appear under My Folders.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플 추가를 누르고 폴더를 고르면 하위 폴더까지 모든 오디오 파일이 내 폴더에 나타나요."
           }
         }
       }
@@ -219,12 +259,32 @@
         }
       }
     },
+    "Drag into Your Project": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "작업 중인 앱으로 끌어다 놓아요"
+          }
+        }
+      }
+    },
     "Drag into your project": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "끌어서 프로젝트에 넣기"
+          }
+        }
+      }
+    },
+    "Drop a sample straight into Logic Pro, Final Cut Pro, Premiere Pro, or After Effects.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플을 Logic Pro, Final Cut Pro, Premiere Pro, After Effects로 바로 끌어다 놓을 수 있어요."
           }
         }
       }
@@ -259,6 +319,16 @@
         }
       }
     },
+    "Finds Your Samples Automatically": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플을 알아서 찾아요"
+          }
+        }
+      }
+    },
     "Folder": {
       "localizations": {
         "ko": {
@@ -289,6 +359,26 @@
         }
       }
     },
+    "Get Started": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시작하기"
+          }
+        }
+      }
+    },
+    "Getting Started with Sampl Moa": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sampl Moa 소개 보기"
+          }
+        }
+      }
+    },
     "Hi-hat": {
       "localizations": {
         "ko": {
@@ -309,6 +399,16 @@
         }
       }
     },
+    "Language": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "언어"
+          }
+        }
+      }
+    },
     "Length": {
       "localizations": {
         "ko": {
@@ -325,6 +425,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "보관함"
+          }
+        }
+      }
+    },
+    "Listen with the Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키보드로 바로 들어요"
           }
         }
       }
@@ -499,6 +609,16 @@
         }
       }
     },
+    "Press Space to play. ↓ or → moves to the next sample, and ← plays it again from the start.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스페이스바로 재생해요. ↓ 또는 →를 누르면 다음 샘플로 넘어가고, ←를 누르면 처음부터 다시 들려줘요."
+          }
+        }
+      }
+    },
     "Press Space to preview · Drag into your project": {
       "localizations": {
         "ko": {
@@ -529,8 +649,58 @@
         }
       }
     },
+    "Restart Now": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 다시 시작"
+          }
+        }
+      }
+    },
+    "Restart Sampl Moa to use the new language.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sampl Moa를 다시 시작하면 새 언어로 바뀌어요."
+          }
+        }
+      }
+    },
+    "Same as System": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템과 동일"
+          }
+        }
+      }
+    },
     "Sampl Moa": {
       "shouldTranslate": false
+    },
+    "Samples": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플"
+          }
+        }
+      }
+    },
+    "Samples you’ve downloaded with Splice show up on their own. There’s nothing to set up.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splice로 받은 샘플이 저절로 나타나요. 따로 설정할 것이 없어요."
+          }
+        }
+      }
     },
     "Search names, packs, genres": {
       "localizations": {
@@ -608,6 +778,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "음량"
+          }
+        }
+      }
+    },
+    "Welcome to Sampl Moa": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sampl Moa에 오신 것을 환영해요"
           }
         }
       }

@@ -11,6 +11,15 @@
       "ko",
     ],
   },
+  "packages": [
+    {
+      "kind": "remote",
+      "repository": "https://github.com/sparkle-project/Sparkle",
+      "version": {
+        "up-to-next-major-version": "2.10.1",
+      },
+    },
+  ],
   "files": [
     { "kind": "folder", "path": "Sampl Moa", "target-membership": [ "Sampl Moa" ] },
     {
@@ -32,6 +41,13 @@
         "frameworks",
         "resources",
       ],
+      "package-product-members": [
+        {
+          "package": "Sparkle",
+          "product-name": "Sparkle",
+          "build-phase": { "build-phase": "frameworks" },
+        },
+      ],
       "build-settings": {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
         "CODE_SIGN_ENTITLEMENTS": "Sampl Moa.entitlements",
@@ -42,11 +58,13 @@
         "ENABLE_PREVIEWS": "YES",
         "ENABLE_USER_SELECTED_FILES": "readonly",
         "GENERATE_INFOPLIST_FILE": "YES",
+        "INFOPLIST_FILE": "Sampl Moa-Info.plist",
         "INFOPLIST_KEY_CFBundleDisplayName": "Sampl Moa",
         "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.music",
+        "INFOPLIST_KEY_NSHumanReadableCopyright": "© 2026 Sampl Moa. Not affiliated with Splice.",
         "LD_RUNPATH_SEARCH_PATHS": "@executable_path/../Frameworks",
         "MARKETING_VERSION": "1.0",
-        "PRODUCT_BUNDLE_IDENTIFIER": "com.songdohyeon.SamplMoa",
+        "PRODUCT_BUNDLE_IDENTIFIER": "io.github.lantern111.SamplMoa",
         "PRODUCT_NAME": "$(TARGET_NAME)",
         "REGISTER_APP_GROUPS": "YES",
         "SDKROOT": "macosx",
