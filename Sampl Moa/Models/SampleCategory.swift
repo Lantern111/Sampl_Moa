@@ -6,7 +6,12 @@ nonisolated enum SampleCategory: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
-    var title: String {
+    /// Sorting by type asks for these thousands of times, so each is looked up once.
+    private static let titles = Dictionary(uniqueKeysWithValues: allCases.map { ($0, $0.localizedTitle) })
+
+    var title: String { Self.titles[self] ?? "" }
+
+    private var localizedTitle: String {
         switch self {
         case .kick: String(localized: "Kick")
         case .snare: String(localized: "Snare")
@@ -72,38 +77,40 @@ nonisolated enum SampleCategory: String, CaseIterable, Identifiable, Sendable {
         }
         if words.contains("bass") && words.contains("drum") { return .kick }
 
-        let groups: [(SampleCategory, Set<String>)] = [
-            (.bass, ["808", "808s", "bass", "basses", "bassline", "sub", "subs", "reese", "베이스", "서브"]),
-            (.kick, ["kick", "kicks", "kik", "bd", "킥"]),
-            (.snare, ["snare", "snares", "snr", "snrs", "스네어"]),
-            (.clap, ["clap", "claps", "clp", "snap", "snaps", "클랩", "스냅"]),
-            (.hiHat, ["hihat", "hihats", "hat", "hats", "hh", "openhat", "closedhat", "하이햇", "햇"]),
-            (.cymbal, ["cymbal", "cymbals", "crash", "crashes", "ride", "rides", "심벌", "심벌즈", "크래시", "라이드"]),
-            (.percussion, [
-                "perc", "percs", "percussion", "percloop", "rim", "rims", "rimshot", "tom", "toms", "shaker", "shakers",
-                "conga", "congas", "bongo", "bongos", "tamb", "tambourine", "cowbell", "woodblock", "triangle", "clave",
-                "퍼커션", "탐", "쉐이커", "림",
-            ]),
-            (.vocal, [
-                "vocal", "vocals", "vox", "adlib", "adlibs", "acapella", "chant", "chants", "choir", "shout", "shouts",
-                "rap", "spoken", "phrase", "phrases", "보컬", "목소리", "랩",
-            ]),
-            (.melodic, [
-                "melody", "melodies", "melodic", "chord", "chords", "keys", "piano", "rhodes", "organ", "synth", "synths",
-                "pad", "pads", "pluck", "plucks", "lead", "leads", "arp", "arps", "bell", "bells", "guitar", "guitars",
-                "strings", "flute", "brass", "horn", "horns", "sax", "violin", "harp", "songstarter", "songstarters",
-                "stack", "stacks", "marimba", "kalimba", "멜로디", "코드", "피아노", "기타", "신스", "건반",
-            ]),
-            (.fx, [
-                "riser", "risers", "impact", "impacts", "sweep", "sweeps", "downlift", "uplift", "whoosh", "whooshes",
-                "transition", "transitions", "noise", "ambience", "ambiences", "ambient", "atmosphere", "atmospheres",
-                "effects", "drop", "drops", "texture", "textures", "cartoon", "alarm", "alarms", "siren", "sirens",
-                "gun", "guns", "gunshot", "shotguns", "rifles", "door", "doors", "footsteps", "birds", "zap", "knock",
-                "knocks", "효과음", "사운드이펙트", "노이즈",
-            ]),
-        ]
-        return groups.first { !words.isDisjoint(with: $0.1) }?.0
+        return wordGroups.first { !words.isDisjoint(with: $0.1) }?.0
     }
+
+    /// Checked for every sample in a scan, so these are built once.
+    private static let wordGroups: [(SampleCategory, Set<String>)] = [
+        (.bass, ["808", "808s", "bass", "basses", "bassline", "sub", "subs", "reese", "베이스", "서브"]),
+        (.kick, ["kick", "kicks", "kik", "bd", "킥"]),
+        (.snare, ["snare", "snares", "snr", "snrs", "스네어"]),
+        (.clap, ["clap", "claps", "clp", "snap", "snaps", "클랩", "스냅"]),
+        (.hiHat, ["hihat", "hihats", "hat", "hats", "hh", "openhat", "closedhat", "하이햇", "햇"]),
+        (.cymbal, ["cymbal", "cymbals", "crash", "crashes", "ride", "rides", "심벌", "심벌즈", "크래시", "라이드"]),
+        (.percussion, [
+            "perc", "percs", "percussion", "percloop", "rim", "rims", "rimshot", "tom", "toms", "shaker", "shakers",
+            "conga", "congas", "bongo", "bongos", "tamb", "tambourine", "cowbell", "woodblock", "triangle", "clave",
+            "퍼커션", "탐", "쉐이커", "림",
+        ]),
+        (.vocal, [
+            "vocal", "vocals", "vox", "adlib", "adlibs", "acapella", "chant", "chants", "choir", "shout", "shouts",
+            "rap", "spoken", "phrase", "phrases", "보컬", "목소리", "랩",
+        ]),
+        (.melodic, [
+            "melody", "melodies", "melodic", "chord", "chords", "keys", "piano", "rhodes", "organ", "synth", "synths",
+            "pad", "pads", "pluck", "plucks", "lead", "leads", "arp", "arps", "bell", "bells", "guitar", "guitars",
+            "strings", "flute", "brass", "horn", "horns", "sax", "violin", "harp", "songstarter", "songstarters",
+            "stack", "stacks", "marimba", "kalimba", "멜로디", "코드", "피아노", "기타", "신스", "건반",
+        ]),
+        (.fx, [
+            "riser", "risers", "impact", "impacts", "sweep", "sweeps", "downlift", "uplift", "whoosh", "whooshes",
+            "transition", "transitions", "noise", "ambience", "ambiences", "ambient", "atmosphere", "atmospheres",
+            "effects", "drop", "drops", "texture", "textures", "cartoon", "alarm", "alarms", "siren", "sirens",
+            "gun", "guns", "gunshot", "shotguns", "rifles", "door", "doors", "footsteps", "birds", "zap", "knock",
+            "knocks", "효과음", "사운드이펙트", "노이즈",
+        ]),
+    ]
 
     /// Splits `PJ_DH_92_Drum-Loop`, `ClosedHat03` and `PercLoop` into lowercase words.
     private static func words(in text: String) -> Set<String> {

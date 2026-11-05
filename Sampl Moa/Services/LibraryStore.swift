@@ -1,3 +1,4 @@
+import CoreServices
 import Foundation
 import Observation
 
@@ -52,6 +53,15 @@ final class LibraryStore {
     @ObservationIgnored private var downloadWatcher: Task<Void, Never>?
     @ObservationIgnored private var scanTask: Task<Void, Never>?
     @ObservationIgnored private let folderAccess = FolderAccess()
+    @ObservationIgnored private var spliceFolders: [URL] = []
+    @ObservationIgnored private var hasUnseenChanges = false
+    @ObservationIgnored private var lastScanDate = Date.distantPast
+    @ObservationIgnored private lazy var folderWatcher = FolderWatcher { [weak self] in
+        self?.hasUnseenChanges = true
+    }
+
+    /// Some folders, such as those on network drives, don't report changes. This is how long they can go unchecked.
+    private static let longestTimeBetweenScans: TimeInterval = 10 * 60
 
     init() {
         addedFolders = folderAccess.restoreFolders()
@@ -83,21 +93,38 @@ final class LibraryStore {
 
     // MARK: - Finding samples
 
-    /// Picks up samples downloaded while the app was in the background.
+    /// Picks up samples downloaded while the app was in the background. People come back here every time they've
+    /// dragged a sample into another app, so this only scans when something has actually changed.
     func refreshIfIdle() {
-        if !isScanning { rescan() }
+        guard !isScanning else { return }
+
+        let isOverdue = Date().timeIntervalSince(lastScanDate) > Self.longestTimeBetweenScans
+        // A newly signed-in Splice account adds a folder that isn't being watched yet.
+        if hasUnseenChanges || isOverdue || SpliceFolders.locate(in: FolderAccess.userHome) != spliceFolders {
+            rescan()
+        }
     }
 
     func rescan() {
         let folders = addedFolders
+        let home = FolderAccess.userHome
+        let scanStart = FSEventsGetCurrentEventId()
 
         scanTask?.cancel()
         isScanning = true
+        hasUnseenChanges = false
         scanTask = Task {
-            let result = await SampleScanner.scan(home: FolderAccess.userHome, folders: folders)
+            let result = await SampleScanner.scan(home: home, folders: folders)
             guard !Task.isCancelled else { return }
 
-            foundSpliceFolder = result.foundSpliceFolder
+            spliceFolders = result.spliceFolders
+            foundSpliceFolder = !result.spliceFolders.isEmpty
+            lastScanDate = Date()
+            let watched = result.spliceFolders + [SpliceDatabase.accountsFolder(home: home)] + folders
+            if watched != folderWatcher.folders {
+                folderWatcher.watch(watched, since: scanStart)
+            }
+
             let scanned = result.samples.map { sample in
                 var sample = sample
                 sample.duration = knownDurations[sample.url]

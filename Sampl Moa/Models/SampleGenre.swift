@@ -136,19 +136,49 @@ nonisolated struct SampleGenre: Identifiable, Hashable, Sendable {
 
     /// For samples with no Splice data, finds genres named in the file name or the folders around it.
     static func guess(fileName: String, folders: [String]) -> [SampleGenre] {
-        let nameText = normalizedWords(fileName)
-        let folderText = normalizedWords(folders.joined(separator: " "))
-        return all.filter { genre in
-            let terms = [genre.id] + genre.aliases
-            return terms.contains { term in
-                folderText.contains(" \(term) ")
-                    || (!unreliableInFileNames.contains(genre.id) && nameText.contains(" \(term) "))
-            }
-        }
+        var found = genreIndexes(namedIn: folders.joined(separator: " "), includingUnreliable: true)
+        found.formUnion(genreIndexes(namedIn: fileName, includingUnreliable: false))
+        return found.sorted().map { all[$0] }
     }
 
-    private static func normalizedWords(_ text: String) -> String {
+    /// One way of writing a genre's name.
+    private struct Term {
+        let genreIndex: Int
+        /// Surrounded by spaces, to compare against whole words. Nil for a single word, which needs no comparing.
+        let phrase: String?
+        let isUnreliableInFileNames: Bool
+    }
+
+    /// Every term, filed under its first word. A scan looks through thousands of names, so it only compares the terms
+    /// that could possibly match instead of trying each one on every name.
+    private static let termsByFirstWord: [String: [Term]] = {
+        var terms: [String: [Term]] = [:]
+        for (index, genre) in all.enumerated() {
+            for name in [genre.id] + genre.aliases {
+                let words = name.split(separator: " ")
+                guard let firstWord = words.first else { continue }
+                terms[String(firstWord), default: []].append(Term(
+                    genreIndex: index,
+                    phrase: words.count > 1 ? " \(name) " : nil,
+                    isUnreliableInFileNames: unreliableInFileNames.contains(genre.id)
+                ))
+            }
+        }
+        return terms
+    }()
+
+    private static func genreIndexes(namedIn text: String, includingUnreliable: Bool) -> Set<Int> {
         let words = text.lowercased().split { !($0.isLetter || $0.isNumber || $0 == "&" || $0 == "-") }
-        return " " + words.joined(separator: " ") + " "
+        let spacedWords = " " + words.joined(separator: " ") + " "
+
+        var found: Set<Int> = []
+        for word in words {
+            for term in termsByFirstWord[String(word)] ?? [] where includingUnreliable || !term.isUnreliableInFileNames {
+                if term.phrase.map(spacedWords.contains) ?? true {
+                    found.insert(term.genreIndex)
+                }
+            }
+        }
+        return found
     }
 }

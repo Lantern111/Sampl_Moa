@@ -11,10 +11,14 @@ nonisolated struct SpliceSampleInfo: Sendable {
 /// Reads the sample details Splice keeps in its own database, one per account. This is Splice's private format and
 /// could change without notice, so everything here is optional: without it, genres are guessed from names instead.
 nonisolated enum SpliceDatabase {
+    /// Holds one folder per account, each with its database.
+    static func accountsFolder(home: URL) -> URL {
+        home.appending(path: "Library/Application Support/com.splice.Splice/users/default")
+    }
+
     /// Returns details keyed by lowercased file name.
     static func loadSampleInfo(home: URL) -> [String: SpliceSampleInfo] {
-        let users = home.appending(path: "Library/Application Support/com.splice.Splice/users/default")
-        let accounts = (try? FileManager.default.contentsOfDirectory(at: users, includingPropertiesForKeys: nil)) ?? []
+        let accounts = (try? FileManager.default.contentsOfDirectory(at: accountsFolder(home: home), includingPropertiesForKeys: nil)) ?? []
 
         var info: [String: SpliceSampleInfo] = [:]
         for account in accounts {
@@ -34,10 +38,14 @@ nonisolated enum SpliceDatabase {
             return [:]
         }
 
+        // Read and written rather than `copyItem`, which clones the file. The system reports a clone as a change to the
+        // folder it came from, and since that folder is being watched, every scan would call for another one.
         let copy = directory.appending(path: "sounds.db")
-        guard (try? fileManager.copyItem(at: database, to: copy)) != nil else { return [:] }
+        guard let contents = try? Data(contentsOf: database), (try? contents.write(to: copy)) != nil else { return [:] }
         // Recent changes may still be in the write-ahead log.
-        try? fileManager.copyItem(at: URL(fileURLWithPath: database.path + "-wal"), to: URL(fileURLWithPath: copy.path + "-wal"))
+        if let log = try? Data(contentsOf: URL(fileURLWithPath: database.path + "-wal")) {
+            try? log.write(to: URL(fileURLWithPath: copy.path + "-wal"))
+        }
 
         return read(copy)
     }

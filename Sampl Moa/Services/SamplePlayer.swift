@@ -29,6 +29,37 @@ final class SamplePlayer {
     @ObservationIgnored private var timer: Timer?
     @ObservationIgnored private var peaksTask: Task<Void, Never>?
 
+    init() {
+        Self.warmUpAudio()
+    }
+
+    /// The first player in a run of the app has to load the system's audio code, which would otherwise freeze the
+    /// window for a moment the first time someone presses Space. This does that ahead of time, without making a sound.
+    private static func warmUpAudio() {
+        Task.detached(priority: .utility) {
+            // One channel of 16-bit silence at 44.1 kHz, 0.1 seconds long.
+            let frames = 4410
+            var wav = Data("RIFF".utf8)
+            func append<Number: FixedWidthInteger>(_ number: Number) {
+                withUnsafeBytes(of: number.littleEndian) { wav.append(contentsOf: $0) }
+            }
+            append(UInt32(36 + frames * 2))
+            wav.append(contentsOf: Data("WAVEfmt ".utf8))
+            append(UInt32(16))
+            append(UInt16(1))
+            append(UInt16(1))
+            append(UInt32(44100))
+            append(UInt32(88200))
+            append(UInt16(2))
+            append(UInt16(16))
+            wav.append(contentsOf: Data("data".utf8))
+            append(UInt32(frames * 2))
+            wav.append(Data(count: frames * 2))
+
+            _ = (try? AVAudioPlayer(data: wav))?.prepareToPlay()
+        }
+    }
+
     /// Fills the bar for a sample that's still downloading, silencing whatever was playing.
     func waitForDownload(of sample: Sample) {
         player?.stop()
@@ -135,7 +166,11 @@ final class SamplePlayer {
 
     private func tick() {
         guard let player else { return }
-        position = player.currentTime
+        // Every change redraws the waveform, and a long song barely moves between ticks.
+        let smallestVisibleStep = min(0.5, player.duration / 400)
+        if abs(player.currentTime - position) >= smallestVisibleStep {
+            position = player.currentTime
+        }
         if !player.isPlaying {
             isPlaying = false
             position = 0

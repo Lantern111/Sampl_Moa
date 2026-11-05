@@ -122,8 +122,10 @@ struct SampleTable: NSViewRepresentable {
         ) {
             guard let tableView else { return }
 
-            let listChanged = newSamples.count != samples.count || newSamples.map(\.id) != samples.map(\.id)
-            let rowsChanged = newSamples != samples || nowPlaying != self.nowPlaying || isPlaying != self.isPlaying
+            // This runs on every key press. Comparing the same array is instant, while comparing IDs goes row by row.
+            let samplesChanged = newSamples != samples
+            let listChanged = samplesChanged && newSamples.map(\.id) != samples.map(\.id)
+            let rowsChanged = samplesChanged || nowPlaying != self.nowPlaying || isPlaying != self.isPlaying
             samples = newSamples
             self.nowPlaying = nowPlaying
             self.isPlaying = isPlaying

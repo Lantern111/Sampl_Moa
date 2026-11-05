@@ -3,7 +3,7 @@ import Foundation
 
 nonisolated enum SampleScanner {
     struct Result: Sendable {
-        let foundSpliceFolder: Bool
+        let spliceFolders: [URL]
         let samples: [Sample]
     }
 
@@ -25,7 +25,7 @@ nonisolated enum SampleScanner {
         for folder in folders where !Task.isCancelled {
             samples += self.samples(inFolder: folder, seen: &seenPaths)
         }
-        return Result(foundSpliceFolder: !spliceFolders.isEmpty, samples: samples)
+        return Result(spliceFolders: spliceFolders, samples: samples)
     }
 
     @concurrent static func readDurations(of urls: [URL]) async -> [TimeInterval?] {
