@@ -249,7 +249,8 @@ struct SampleTable: NSViewRepresentable {
 
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
             // Copy only. Allowing a move would let a drop on Finder pull the file out of the Splice folder.
-            context == .outsideApplication ? .copy : []
+            // Inside the app, this is what lets a sample land on the sampler's pads.
+            .copy
         }
 
         /// A file icon and name, the same thing people see when dragging from Finder.

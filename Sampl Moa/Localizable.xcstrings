@@ -1,6 +1,36 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%.2f sec": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.2f초"
+          }
+        }
+      }
+    },
+    "%@ couldn’t be loaded here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 플러그인을 불러올 수 없습니다."
+          }
+        }
+      }
+    },
+    "%lld bars": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld마디"
+          }
+        }
+      }
+    },
     "%lld samples": {
       "localizations": {
         "en": {
@@ -29,6 +59,16 @@
         }
       }
     },
+    "%lld slices": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld조각"
+          }
+        }
+      }
+    },
     "808 & Bass": {
       "localizations": {
         "ko": {
@@ -39,12 +79,42 @@
         }
       }
     },
+    "A MIDI file to play with your own sounds.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 소리로 연주할 MIDI 파일"
+          }
+        }
+      }
+    },
     "Add": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "추가"
+          }
+        }
+      }
+    },
+    "Add Effects": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이펙트 넣기"
+          }
+        }
+      }
+    },
+    "Add Plug-in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플러그인 추가"
           }
         }
       }
@@ -139,12 +209,182 @@
         }
       }
     },
+    "Allow Access": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한 허용하기"
+          }
+        }
+      }
+    },
+    "Allow Access First": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "먼저 권한 허용하기"
+          }
+        }
+      }
+    },
+    "Asked": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요청함"
+          }
+        }
+      }
+    },
+    "At Hits": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 감지"
+          }
+        }
+      }
+    },
+    "Audio FX": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio FX"
+          }
+        }
+      }
+    },
+    "Audio Units": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Unit 플러그인"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전"
+          }
+        }
+      }
+    },
+    "Band-Pass Filter": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "밴드패스 필터"
+          }
+        }
+      }
+    },
+    "Bars": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마디"
+          }
+        }
+      }
+    },
+    "Built-in Effects": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본 이펙트"
+          }
+        }
+      }
+    },
+    "Bypass": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄기"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        }
+      }
+    },
+    "Cancel (esc)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소 (esc)"
+          }
+        }
+      }
+    },
+    "Carry On in Your DAW": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DAW에서 이어서 작업하기"
+          }
+        }
+      }
+    },
+    "Changes the length without changing the pitch.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "음정은 그대로 두고 길이만 바꿉니다."
+          }
+        }
+      }
+    },
+    "Changes the pitch and the length together, like speeding up a record.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "레코드 속도를 바꾸듯 음정과 길이를 함께 바꿉니다."
+          }
+        }
+      }
+    },
     "Check for Updates…": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "업데이트 확인…"
+          }
+        }
+      }
+    },
+    "Choke Group": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초크 그룹"
           }
         }
       }
@@ -169,12 +409,52 @@
         }
       }
     },
+    "Choose the Part That Plays": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생할 부분 고르기"
+          }
+        }
+      }
+    },
+    "Chop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "찹"
+          }
+        }
+      }
+    },
+    "Chop a Loop or a Song": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루프나 곡 찹하기"
+          }
+        }
+      }
+    },
     "Clap": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "클랩"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패턴 지우기"
           }
         }
       }
@@ -189,6 +469,16 @@
         }
       }
     },
+    "Clear Pattern": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패턴 지우기"
+          }
+        }
+      }
+    },
     "Click Add Samples and choose a folder. All its audio files, including subfolders, appear under My Folders.": {
       "localizations": {
         "ko": {
@@ -199,12 +489,132 @@
         }
       }
     },
+    "Click Track": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메트로놈"
+          }
+        }
+      }
+    },
+    "Click a slice to hear it. Drag a line to move it. Double-click to add or remove a line.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "조각을 클릭하면 들을 수 있습니다. 선을 끌어 옮기고, 더블 클릭으로 선을 추가하거나 지웁니다."
+          }
+        }
+      }
+    },
+    "Click to turn this strip with your device’s knobs.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "클릭하면 기기의 노브로 이 스트립을 조절합니다."
+          }
+        }
+      }
+    },
+    "Click track (K). It’s never part of what gets recorded or exported.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메트로놈 (K). 녹음이나 내보내기에는 들어가지 않습니다."
+          }
+        }
+      }
+    },
     "Close Player": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "재생 바 닫기"
+          }
+        }
+      }
+    },
+    "Compressor": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "컴프레서"
+          }
+        }
+      }
+    },
+    "Connect any MIDI controller and it’s ready to play. On an MPK mini, bank A is the bottom two rows of pads here, and bank B is the top two. For other devices, use the gear button to teach it your pads and knobs. Each device’s setup is remembered.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MIDI 컨트롤러를 연결하면 바로 연주할 수 있습니다. MPK mini는 뱅크 A가 화면의 아래 두 줄, 뱅크 B가 위 두 줄입니다. 다른 기기는 톱니바퀴 버튼에서 패드와 노브를 매핑하세요. 기기별 매핑은 기억됩니다."
+          }
+        }
+      }
+    },
+    "Connect any MIDI controller and it’s ready to play. On an MPK mini, bank A is the bottom two rows of pads here, and bank B is the top two. If the wrong pads play, choose Set Up Device.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MIDI 컨트롤러를 연결하면 바로 연주할 수 있습니다. MPK mini는 뱅크 A가 화면의 아래 두 줄, 뱅크 B가 위 두 줄입니다. 다른 패드가 울리면 기기 설정을 선택하세요."
+          }
+        }
+      }
+    },
+    "Couldn’t export that.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내보내지 못했습니다."
+          }
+        }
+      }
+    },
+    "Couldn’t open your Mac’s audio output.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac의 오디오 출력을 열 수 없습니다."
+          }
+        }
+      }
+    },
+    "Cut": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "찹 방식"
+          }
+        }
+      }
+    },
+    "Cut Group": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끊기 그룹"
+          }
+        }
+      }
+    },
+    "Cuts the chosen part into slices and puts one on each pad.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 부분을 잘라 패드마다 하나씩 넣습니다."
           }
         }
       }
@@ -225,6 +635,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "받은 날짜"
+          }
+        }
+      }
+    },
+    "Delay": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "딜레이"
+          }
+        }
+      }
+    },
+    "Device Knobs": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기 노브"
+          }
+        }
+      }
+    },
+    "Distortion": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디스토션"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
+          }
+        }
+      }
+    },
+    "Down the side of the window, like the inspector in Logic Pro, are the selected sound’s channel strip and the Master’s. The Master shapes everything together without touching each pad’s balance. Click Device Knobs on a strip to turn it with your device’s knobs. Double-click any control to put it back.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창 옆에는 Logic Pro의 인스펙터처럼 선택한 사운드의 채널 스트립과 마스터 스트립이 있습니다. 마스터는 패드마다 맞춘 밸런스는 그대로 두고 전체 소리를 다듬습니다. 스트립 위쪽의 기기 노브를 누르면 기기의 노브로 그 스트립을 조절합니다. 어떤 컨트롤이든 더블 클릭하면 원래대로 돌아갑니다."
           }
         }
       }
@@ -269,6 +729,16 @@
         }
       }
     },
+    "Drag a sample from the list onto a pad. You can also select samples and click an empty pad.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록의 샘플을 패드로 끌어다 놓으세요. 샘플을 선택한 뒤 빈 패드를 클릭해도 됩니다."
+          }
+        }
+      }
+    },
     "Drag into Your Project": {
       "localizations": {
         "ko": {
@@ -279,12 +749,52 @@
         }
       }
     },
+    "Drag into your DAW:": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DAW로 끌어다 놓으세요:"
+          }
+        }
+      }
+    },
     "Drag into your project": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "끌어서 프로젝트에 넣기"
+          }
+        }
+      }
+    },
+    "Drag samples from the list onto a pad. Drag several at once and they fill the next pads too. You can also select samples and click an empty pad.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록의 샘플을 패드로 끌어다 놓으세요. 여러 개를 끌면 다음 패드까지 차례로 채워집니다. 샘플을 선택한 뒤 빈 패드를 클릭해도 됩니다."
+          }
+        }
+      }
+    },
+    "Drop a sample here to play it on the keys": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플을 여기에 놓으면 건반으로 연주할 수 있습니다"
+          }
+        }
+      }
+    },
+    "Drop a sample on Keyboard and every key plays it in tune. Keep Length holds the notes of a chord together. Repitch changes speed with pitch, like speeding up a record.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플을 건반 칸에 놓으면 건반마다 음에 맞게 연주됩니다. 길이 고정은 코드의 음 길이를 맞춰 주고, 리피치는 레코드처럼 피치와 속도가 함께 바뀝니다."
           }
         }
       }
@@ -305,6 +815,66 @@
           "stringUnit": {
             "state": "translated",
             "value": "드럼 루프"
+          }
+        }
+      }
+    },
+    "EQ": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EQ"
+          }
+        }
+      }
+    },
+    "Each Pad Separately": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드별 파일"
+          }
+        }
+      }
+    },
+    "Eight knobs shape the selected sound: volume, pitch, speed, delay, low, mid, high, and reverb. The knobs on your device turn the ones in the same place. Double-click a knob to put it back.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "노브 8개로 선택한 소리를 다듬습니다. 음량, 음정, 속도, 딜레이, 저음, 중음, 고음, 리버브입니다. 기기의 노브는 같은 자리의 노브를 움직입니다. 노브를 더블 클릭하면 원래대로 돌아갑니다."
+          }
+        }
+      }
+    },
+    "Empty Pad": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빈 패드"
+          }
+        }
+      }
+    },
+    "Export": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내보내기"
+          }
+        }
+      }
+    },
+    "Exporting…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내보내는 중…"
           }
         }
       }
@@ -389,6 +959,16 @@
         }
       }
     },
+    "Getting every key ready to keep the same length…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 건반을 같은 길이로 준비하는 중…"
+          }
+        }
+      }
+    },
     "Hi-hat": {
       "localizations": {
         "ko": {
@@ -399,12 +979,132 @@
         }
       }
     },
+    "High": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "하이"
+          }
+        }
+      }
+    },
+    "High-Pass Filter": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "하이패스 필터"
+          }
+        }
+      }
+    },
+    "Hold": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "홀드"
+          }
+        }
+      }
+    },
+    "How long the loop is.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "반복 구간의 길이입니다."
+          }
+        }
+      }
+    },
+    "How to Use the Sampler": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플러 사용법"
+          }
+        }
+      }
+    },
+    "If this doesn’t go away, try reconnecting your audio interface or choosing another output in System Settings.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계속 표시되면 오디오 인터페이스를 다시 연결하거나 시스템 설정에서 다른 출력을 선택해 보세요."
+          }
+        }
+      }
+    },
+    "Keep Length": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길이 고정"
+          }
+        }
+      }
+    },
+    "Keep Length keeps the notes of a chord together. Repitch changes speed with pitch, like speeding up a record.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길이 고정은 코드의 음 길이를 맞춰 줍니다. 리피치는 레코드처럼 피치와 속도가 함께 바뀝니다."
+          }
+        }
+      }
+    },
+    "Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건반"
+          }
+        }
+      }
+    },
+    "Keyboard Shortcuts": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단축키"
+          }
+        }
+      }
+    },
+    "Keys": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건반 모드"
+          }
+        }
+      }
+    },
     "Kick": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "킥"
+          }
+        }
+      }
+    },
+    "Knobs": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "노브"
           }
         }
       }
@@ -439,12 +1139,32 @@
         }
       }
     },
+    "Limiter": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "리미터"
+          }
+        }
+      }
+    },
     "Listen with the Keyboard": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "키보드로 바로 들어요"
+          }
+        }
+      }
+    },
+    "Loading…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "불러오는 중…"
           }
         }
       }
@@ -459,12 +1179,122 @@
         }
       }
     },
+    "Loop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루프"
+          }
+        }
+      }
+    },
+    "Low": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로우"
+          }
+        }
+      }
+    },
+    "Low-Pass Filter": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로우패스 필터"
+          }
+        }
+      }
+    },
+    "MIDI Mapping": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MIDI 매핑"
+          }
+        }
+      }
+    },
+    "MIDI mapping for your device’s pads and knobs. Each device’s mapping is remembered.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기의 패드와 노브를 MIDI 매핑합니다. 기기별 매핑은 기억됩니다."
+          }
+        }
+      }
+    },
+    "Map Knobs": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "노브 매핑"
+          }
+        }
+      }
+    },
+    "Map Pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드 매핑"
+          }
+        }
+      }
+    },
+    "Mark out slices on the waveform, then put one on each pad (C).": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파형에 자를 위치를 표시한 뒤 패드마다 한 조각씩 배치합니다 (C)."
+          }
+        }
+      }
+    },
+    "Master": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마스터"
+          }
+        }
+      }
+    },
     "Melodic": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "멜로디"
+          }
+        }
+      }
+    },
+    "Mid": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "미드"
+          }
+        }
+      }
+    },
+    "Mix Like in Logic Pro": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logic Pro처럼 믹싱하기"
           }
         }
       }
@@ -499,12 +1329,32 @@
         }
       }
     },
+    "Next": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음"
+          }
+        }
+      }
+    },
     "No Audio Files Found": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "오디오 파일을 찾지 못했어요"
+          }
+        }
+      }
+    },
+    "No MIDI device connected": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결된 MIDI 기기 없음"
           }
         }
       }
@@ -529,12 +1379,142 @@
         }
       }
     },
+    "None": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "없음"
+          }
+        }
+      }
+    },
+    "Not Now": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에"
+          }
+        }
+      }
+    },
+    "Notes Only": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MIDI만"
+          }
+        }
+      }
+    },
+    "Nothing on the Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건반에 넣은 샘플 없음"
+          }
+        }
+      }
+    },
+    "Now hit the pad on your device for pad %lld.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기에서 %lld번 패드로 쓸 패드를 치세요."
+          }
+        }
+      }
+    },
+    "Now turn the knob on your device for %@.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기에서 %@ 노브로 쓸 노브를 돌리세요."
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄기"
+          }
+        }
+      }
+    },
+    "One Shot": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "원샷"
+          }
+        }
+      }
+    },
+    "One audio file per pad, lined up.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드마다 오디오 파일 하나, 위치가 맞습니다"
+          }
+        }
+      }
+    },
+    "One audio file with all effects.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 이펙트를 포함한 오디오 파일 하나"
+          }
+        }
+      }
+    },
+    "Open %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 열기"
+          }
+        }
+      }
+    },
+    "Open In": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음에서 열기"
+          }
+        }
+      }
+    },
     "Other": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "기타"
+          }
+        }
+      }
+    },
+    "Overview": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 보기"
           }
         }
       }
@@ -559,6 +1539,46 @@
         }
       }
     },
+    "Pad %lld": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드 %lld"
+          }
+        }
+      }
+    },
+    "Pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드"
+          }
+        }
+      }
+    },
+    "Pads in the same group cut each other off, the way a closed hi-hat silences an open one.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "같은 그룹의 패드는 서로의 소리를 끊습니다. 닫힌 하이햇이 열린 하이햇을 끊는 것과 같습니다."
+          }
+        }
+      }
+    },
+    "Pads with the same number silence each other, like a closed hi-hat stopping an open one.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "번호가 같은 패드끼리 소리를 끊습니다. 예를 들어 클로즈드 하이햇이 오픈 하이햇을 끊습니다."
+          }
+        }
+      }
+    },
     "Pause": {
       "localizations": {
         "ko": {
@@ -569,12 +1589,32 @@
         }
       }
     },
+    "Peak": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피크"
+          }
+        }
+      }
+    },
     "Percussion": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "퍼커션"
+          }
+        }
+      }
+    },
+    "Pitch": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피치"
           }
         }
       }
@@ -599,6 +1639,46 @@
         }
       }
     },
+    "Play / Stop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 / 정지"
+          }
+        }
+      }
+    },
+    "Play It on the Keys": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건반으로 연주하기"
+          }
+        }
+      }
+    },
+    "Play Mode": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 모드"
+          }
+        }
+      }
+    },
+    "Play from Your Device": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 기기로 연주하기"
+          }
+        }
+      }
+    },
     "Play or Pause": {
       "localizations": {
         "ko": {
@@ -619,12 +1699,52 @@
         }
       }
     },
+    "Play or Stop (Return)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 또는 정지 (Return)"
+          }
+        }
+      }
+    },
     "Playback": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "재생"
+          }
+        }
+      }
+    },
+    "Plays this sound on the keys too, in tune.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 소리를 건반에서도 음에 맞게 연주합니다."
+          }
+        }
+      }
+    },
+    "Plug-ins often keep their presets in your Documents and Music folders, and macOS asks about each folder once. Allow them now and you won’t be interrupted while you play.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플러그인은 프리셋을 문서나 음악 폴더에 두는 경우가 많고, macOS는 폴더마다 한 번씩 묻습니다. 지금 허용해 두면 연주 중에 방해받지 않습니다."
+          }
+        }
+      }
+    },
+    "Press Send to DAW for the whole beat, each pad separately, or just the notes. Drag the files into Logic Pro or any other DAW.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DAW로 내보내기에서 비트 전체, 패드별 파일, MIDI 중에 고르세요. 파일을 Logic Pro나 다른 DAW로 끌어다 놓으면 됩니다."
           }
         }
       }
@@ -649,12 +1769,152 @@
         }
       }
     },
+    "Press record or R, wait for the four clicks, and play. The loop keeps going, so you can add more each time around. Undo takes back the last pass.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "녹음 버튼이나 R을 누르고 클릭 네 번 뒤에 연주하세요. 구간이 반복되니 돌 때마다 더 쌓을 수 있습니다. 실행 취소는 마지막 녹음만 지웁니다."
+          }
+        }
+      }
+    },
+    "Preview Sample": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플 미리듣기"
+          }
+        }
+      }
+    },
+    "Pulls what you recorded onto the beat. You can change this at any time.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "녹음한 연주를 박자에 맞춥니다. 언제든 바꿀 수 있습니다."
+          }
+        }
+      }
+    },
+    "Put Sounds on the Pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드에 소리 넣기"
+          }
+        }
+      }
+    },
+    "Put a drum loop or a whole song on a pad and press Chop. Lines mark the slices. Click a slice to hear it, drag a line to move it, and double-click to add or remove one. Then choose Put on Pads.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "드럼 루프나 곡 전체를 패드에 넣고 찹을 누르세요. 선이 조각을 표시합니다. 조각을 클릭하면 들어 볼 수 있고, 선을 끌어 옮기거나 더블 클릭으로 추가, 삭제할 수 있습니다. 그다음 패드에 배치를 누르세요."
+          }
+        }
+      }
+    },
+    "Put a drum loop or a whole song on a pad, then choose Chop. It’s cut at each hit, or into equal slices, with one slice on each pad. Now play it your own way.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "드럼 루프나 곡 전체를 패드에 넣고 자르기를 선택하세요. 타격 지점마다 또는 같은 길이로 잘려 패드마다 한 조각씩 들어갑니다. 이제 원하는 대로 연주해 보세요."
+          }
+        }
+      }
+    },
+    "Put on Pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드에 배치"
+          }
+        }
+      }
+    },
+    "Record": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "녹음"
+          }
+        }
+      }
+    },
+    "Record (R). Starts after four clicks if nothing’s playing. Press again to stop recording and keep playing.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "녹음 (R). 재생 중이 아니면 클릭 네 번 뒤에 시작합니다. 다시 누르면 재생은 계속되고 녹음만 멈춥니다."
+          }
+        }
+      }
+    },
+    "Record a Beat": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비트 녹음하기"
+          }
+        }
+      }
+    },
+    "Remove Plug-in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플러그인 제거"
+          }
+        }
+      }
+    },
+    "Remove from Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건반에서 제거"
+          }
+        }
+      }
+    },
     "Remove from List": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "목록에서 제거"
+          }
+        }
+      }
+    },
+    "Remove from Pad": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드에서 제거"
+          }
+        }
+      }
+    },
+    "Repitch": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "리피치"
           }
         }
       }
@@ -679,6 +1939,16 @@
         }
       }
     },
+    "Reset Mapping": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "매핑 초기화"
+          }
+        }
+      }
+    },
     "Restart Now": {
       "localizations": {
         "ko": {
@@ -699,6 +1969,26 @@
         }
       }
     },
+    "Reverb": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "리버브"
+          }
+        }
+      }
+    },
+    "Root Note": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루트 음"
+          }
+        }
+      }
+    },
     "Same as System": {
       "localizations": {
         "ko": {
@@ -711,6 +2001,16 @@
     },
     "Sampl Moa": {
       "shouldTranslate": false
+    },
+    "Sampler": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플러"
+          }
+        }
+      }
     },
     "Samples": {
       "localizations": {
@@ -732,12 +2032,82 @@
         }
       }
     },
+    "Scroll to zoom, or drag the bar below.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스크롤로 확대하고, 아래 막대를 끌어 이동합니다."
+          }
+        }
+      }
+    },
     "Search names, packs, genres": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "이름, 팩, 장르 검색"
+          }
+        }
+      }
+    },
+    "See What’s Playing": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 위치 보기"
+          }
+        }
+      }
+    },
+    "Send to DAW": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DAW로 내보내기"
+          }
+        }
+      }
+    },
+    "Send to Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건반으로 보내기"
+          }
+        }
+      }
+    },
+    "Sends": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends"
+          }
+        }
+      }
+    },
+    "Sensitivity": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "감도"
+          }
+        }
+      }
+    },
+    "Show Whole File": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 보기"
           }
         }
       }
@@ -752,12 +2122,142 @@
         }
       }
     },
+    "Show or hide the sampler": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플러 보기 또는 가리기"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건너뛰기"
+          }
+        }
+      }
+    },
     "Snare": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "스네어"
+          }
+        }
+      }
+    },
+    "Space": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스페이스"
+          }
+        }
+      }
+    },
+    "Speed": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "속도"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정지"
+          }
+        }
+      }
+    },
+    "Stop All": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모두 정지"
+          }
+        }
+      }
+    },
+    "Swing": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스윙"
+          }
+        }
+      }
+    },
+    "Swing. 50% is straight, and higher makes the offbeats fall later.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스윙입니다. 50%는 정박이고, 높을수록 엇박이 늦어집니다."
+          }
+        }
+      }
+    },
+    "Tap": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "탭"
+          }
+        }
+      }
+    },
+    "Tap Tempo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "탭 템포"
+          }
+        }
+      }
+    },
+    "Tap along with the beat to set the tempo (T).": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "박자에 맞춰 누르면 그 빠르기로 템포가 맞춰집니다 (T)."
+          }
+        }
+      }
+    },
+    "Teach %@ its pads and knobs?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@의 패드와 노브를 매핑할까요?"
+          }
+        }
+      }
+    },
+    "Tempo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "템포"
           }
         }
       }
@@ -772,6 +2272,66 @@
         }
       }
     },
+    "The key that plays this sound at its original pitch.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 소리가 원래 음정으로 나는 건반입니다."
+          }
+        }
+      }
+    },
+    "The loudest it has been. Click to start again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금까지 가장 컸던 레벨입니다. 클릭하면 다시 잽니다."
+          }
+        }
+      }
+    },
+    "The pad you hit opens below the pads, and a line shows the point you’re hearing. Drag the handles on the waveform to choose which part plays.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드를 치면 아래에 그 패드의 파형이 열리고, 선이 지금 들리는 위치를 보여 줍니다. 파형의 양쪽 끝선을 끌어 재생할 부분을 고르세요."
+          }
+        }
+      }
+    },
+    "The pad you hit opens on the right, and a line shows the point you’re hearing. Drag the flags to choose the part that plays. Scroll to zoom, and drag the bar below the waveform to move along.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드를 치면 오른쪽에 그 패드가 열리고, 선이 지금 들리는 위치를 보여 줍니다. 깃발을 끌어 재생할 부분을 고르세요. 스크롤로 확대하고, 파형 아래 막대를 끌어 이동합니다."
+          }
+        }
+      }
+    },
+    "These work while the sampler is open, except when you’re typing in a field.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플러가 열려 있으면 언제든 쓸 수 있습니다. 입력란에 글자를 입력하는 중에는 동작하지 않습니다."
+          }
+        }
+      }
+    },
+    "This file can’t be played.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 파일은 재생할 수 없습니다."
+          }
+        }
+      }
+    },
     "This file can’t be previewed.": {
       "localizations": {
         "ko": {
@@ -782,12 +2342,92 @@
         }
       }
     },
+    "Timing": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "퀀타이즈"
+          }
+        }
+      }
+    },
+    "Turn On": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜기"
+          }
+        }
+      }
+    },
     "Type": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "종류"
+          }
+        }
+      }
+    },
+    "Under Audio FX on a strip, choose a built-in effect like reverb, delay, or a filter, or the Audio Units you use in Logic Pro. On a pad’s strip they change that pad. On the Master they change everything.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스트립의 Audio FX에서 리버브, 딜레이, 필터 같은 기본 이펙트를 고르거나 Logic Pro에서 쓰던 Audio Unit을 추가하세요. 패드 스트립에 넣으면 그 패드만, 마스터에 넣으면 전체 소리가 바뀝니다."
+          }
+        }
+      }
+    },
+    "Under Plug-ins, add the Audio Units you already use in Logic Pro. Everything the sampler plays passes through them.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플러그인 항목에서 Logic Pro에서 쓰던 Audio Unit을 추가하세요. 샘플러의 모든 소리가 플러그인을 거쳐 나옵니다."
+          }
+        }
+      }
+    },
+    "Undo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "실행 취소"
+          }
+        }
+      }
+    },
+    "Undo Chop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "찹 취소"
+          }
+        }
+      }
+    },
+    "Undo: removes everything from the last time you recorded.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "실행 취소: 마지막으로 녹음한 내용을 지웁니다."
+          }
+        }
+      }
+    },
+    "Use Device Knobs Here": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여기에 기기 노브 사용"
           }
         }
       }
@@ -807,7 +2447,27 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "음량"
+            "value": "볼륨"
+          }
+        }
+      }
+    },
+    "Waiting for your Mac’s audio output…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac의 오디오 출력을 기다리는 중…"
+          }
+        }
+      }
+    },
+    "Waveform": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파형"
           }
         }
       }
@@ -818,6 +2478,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sampl Moa에 오신 것을 환영해요"
+          }
+        }
+      }
+    },
+    "Whole Beat": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비트 전체"
+          }
+        }
+      }
+    },
+    "Your device’s knobs turn this strip.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기의 노브가 이 스트립을 조절합니다."
+          }
+        }
+      }
+    },
+    "Zoom to Selection": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택 영역 확대"
           }
         }
       }

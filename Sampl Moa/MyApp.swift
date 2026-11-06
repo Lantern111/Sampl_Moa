@@ -36,11 +36,22 @@ import SwiftUI
 
             CommandMenu("Playback") {
                 Button("Play or Pause", action: store.togglePlaybackOfSelection)
+
+                Toggle("Sampler", isOn: Binding(
+                    get: { store.sampler.isOpen },
+                    set: { store.sampler.isOpen = $0 }
+                ))
+                .keyboardShortcut("s", modifiers: [.command, .shift])
             }
 
             CommandGroup(replacing: .help) {
                 Button("Getting Started with Sampl Moa") {
                     hasSeenWelcome = false
+                }
+
+                Button("How to Use the Sampler") {
+                    store.sampler.isOpen = true
+                    store.sampler.showsGuide = true
                 }
 
                 Button("Report a Bug…") {

@@ -5,6 +5,7 @@ import Observation
 @Observable
 final class LibraryStore {
     let player = SamplePlayer()
+    let sampler = SamplerStore()
 
     private(set) var isScanning = false
     private(set) var hasFinishedFirstScan = false

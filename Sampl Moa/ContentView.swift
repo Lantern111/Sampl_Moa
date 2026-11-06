@@ -10,11 +10,28 @@ struct ContentView: View {
     @State private var keyMonitor: Any?
     @State private var window: NSWindow?
 
+    private var samplerIsOpen: Binding<Bool> {
+        Binding(get: { store.sampler.isOpen }, set: { store.sampler.isOpen = $0 })
+    }
+
     var body: some View {
         NavigationSplitView {
             SidebarView(store: store)
         } detail: {
-            LibraryView(store: store)
+            // With the sampler open, the inspector runs the full height beside the list and the sampler, as in Logic Pro.
+            HStack(spacing: 0) {
+                VStack(spacing: 0) {
+                    LibraryView(store: store)
+                    if store.sampler.isOpen {
+                        Divider()
+                        SamplerPanel(sampler: store.sampler, selectedSamples: store.selection)
+                    }
+                }
+                if store.sampler.isOpen {
+                    Divider()
+                    SamplerInspector(sampler: store.sampler)
+                }
+            }
                 .navigationTitle(store.title)
                 .navigationSubtitle(String(localized: "\(store.visibleSamples.count) samples"))
                 .toolbar {
@@ -36,11 +53,18 @@ struct ContentView: View {
                         }
                         .help("Add a folder of samples")
                     }
+                    ToolbarItem(placement: .primaryAction) {
+                        Toggle(isOn: samplerIsOpen) {
+                            Label("Sampler", systemImage: "square.grid.4x3.fill")
+                                .labelStyle(.titleAndIcon)
+                        }
+                        .help("Show or hide the sampler")
+                    }
                 }
                 .searchable(text: $store.searchText, placement: .toolbar, prompt: "Search names, packs, genres")
                 .onSubmit(of: .search, store.requestListFocus)
         }
-        .frame(minWidth: 1000, minHeight: 620)
+        .frame(minWidth: store.sampler.isOpen ? 1300 : 1000, minHeight: store.sampler.isOpen ? 780 : 620)
         .background(WindowReader(window: $window))
         .sheet(isPresented: Binding(get: { !hasSeenWelcome }, set: { hasSeenWelcome = !$0 })) {
             WelcomeView(updater: updater)
@@ -51,15 +75,18 @@ struct ContentView: View {
         }
     }
 
-    /// Space, Left and Right should work wherever the focus is, except while typing in a search field. An empty field
-    /// doesn't count, since there's nothing to edit there yet and a field can hold focus right after launch. Settings
-    /// and the welcome sheet are left alone, because these keys operate their own controls.
+    /// The sampler's keys come first, while it's open. Then Space, Left and Right should work wherever the focus is,
+    /// except while typing in a search field. An empty field doesn't count, since there's nothing to edit there yet and
+    /// a field can hold focus right after launch. Settings and the welcome sheet are left alone, because these keys
+    /// operate their own controls.
     private func startListeningForPlaybackKeys() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            guard event.window === window else { return event }
+            if SamplerShortcut.handle(event, in: store.sampler) { return nil }
+
             let spaceKey: UInt16 = 49, leftArrow: UInt16 = 123, rightArrow: UInt16 = 124
-            guard event.window === window,
-                  [spaceKey, leftArrow, rightArrow].contains(event.keyCode),
+            guard [spaceKey, leftArrow, rightArrow].contains(event.keyCode),
                   event.modifierFlags.isDisjoint(with: [.command, .control, .option, .shift])
             else { return event }
             if let editor = event.window?.firstResponder as? NSTextView, !editor.string.isEmpty { return event }
