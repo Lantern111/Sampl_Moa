@@ -34,7 +34,7 @@ struct SamplerGuideView: View {
         ),
         Step(
             title: "Choose the Part That Plays",
-            detail: "The pad you hit opens on the right, and a line shows the point you’re hearing. Drag the flags to choose the part that plays. Scroll to zoom, and drag the bar below the waveform to move along.",
+            detail: "The pad you hit opens beside the pads, and a line shows the point you’re hearing. Drag the flags to choose the part that plays. Scroll to zoom. A loop shows its tempo, and Follow Tempo plays it at the sampler’s.",
             systemImage: "waveform"
         ),
         Step(

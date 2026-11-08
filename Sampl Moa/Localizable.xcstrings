@@ -389,6 +389,16 @@
         }
       }
     },
+    "Changes the speed, not the pitch, so this plays at the sampler’s %lld BPM, and keeps up when the tempo changes. Turning Speed yourself stops it.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "음정은 그대로 두고 속도를 바꿔 샘플러의 %lld BPM에 맞춰 재생하고, 템포가 바뀌면 따라갑니다. 속도 노브를 직접 돌리면 멈춥니다."
+          }
+        }
+      }
+    },
     "Check for Updates…": {
       "localizations": {
         "ko": {
@@ -1035,6 +1045,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "폴더"
+          }
+        }
+      }
+    },
+    "Follow Tempo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "템포 맞추기"
           }
         }
       }
@@ -2332,6 +2352,16 @@
     "Sampl Moa": {
       "shouldTranslate": false
     },
+    "Sample Tempo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "샘플 템포"
+          }
+        }
+      }
+    },
     "Sampler": {
       "localizations": {
         "ko": {
@@ -2632,12 +2662,22 @@
         }
       }
     },
-    "The pad you hit opens on the right, and a line shows the point you’re hearing. Drag the flags to choose the part that plays. Scroll to zoom, and drag the bar below the waveform to move along.": {
+    "The pad you hit opens beside the pads, and a line shows the point you’re hearing. Drag the flags to choose the part that plays. Scroll to zoom. A loop shows its tempo, and Follow Tempo plays it at the sampler’s.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "패드를 치면 오른쪽에 그 패드가 열리고, 선이 지금 들리는 위치를 보여 줍니다. 깃발을 끌어 재생할 부분을 고르세요. 스크롤로 확대하고, 파형 아래 막대를 끌어 이동합니다."
+            "value": "친 패드는 패드 옆에 열리고, 지금 들리는 지점이 선으로 표시됩니다. 깃발을 드래그해 재생할 부분을 고르고, 스크롤로 확대하세요. 루프는 템포가 표시되고, ‘템포 맞추기’를 켜면 샘플러 템포에 맞춰 재생됩니다."
+          }
+        }
+      }
+    },
+    "The tempo this sound was recorded at. Splice and most sample names say. Type it in if it’s missing or wrong.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 사운드가 녹음된 템포입니다. Splice 정보나 대부분의 샘플 이름에 적혀 있습니다. 없거나 틀리면 직접 입력하세요."
           }
         }
       }
@@ -2738,6 +2778,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "종류"
+          }
+        }
+      }
+    },
+    "Type in the sound’s tempo first.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "먼저 사운드의 템포를 입력하세요."
           }
         }
       }

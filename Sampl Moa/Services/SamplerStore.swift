@@ -159,6 +159,10 @@ final class SamplerStore {
     @ObservationIgnored private var saveTask: Task<Void, Never>?
     @ObservationIgnored private var playheadTask: Task<Void, Never>?
     @ObservationIgnored private var restTask: Task<Void, Never>?
+    /// What the library knows about a file's tempo. Nil if the library doesn't have the file, and `.some(nil)` if it
+    /// does but the sample has no tempo, like a one-shot.
+    @ObservationIgnored var libraryTempo: (URL) -> Double?? = { _ in nil }
+    @ObservationIgnored private var lastFollowedTempo: Double?
     @ObservationIgnored private var peaksCache: [PeaksRequest: [Float]] = [:]
     @ObservationIgnored private var knobRemainders = [Double](repeating: 0, count: SamplerKnob.allCases.count)
     @ObservationIgnored private var deviceProfiles: [String: SamplerDeviceProfile] = [:]
@@ -178,6 +182,7 @@ final class SamplerStore {
 
     @ObservationIgnored private(set) lazy var sequencer = SamplerSequencer(mixer: engine.mixer) { [weak self] in
         self?.saveSoon()
+        self?.followTempoChange()
     }
 
     @ObservationIgnored private lazy var router = SamplerRouter(
@@ -337,6 +342,7 @@ final class SamplerStore {
         for (index, url) in zip(targets, urls) {
             var slot = SamplerSlot()
             slot.path = url.path
+            slot.sourceBPM = tempo(of: url)
             if index == SamplerSlot.keyboardIndex {
                 slot.mode = .hold
                 slotsNeedingRoot.insert(index)
@@ -390,6 +396,63 @@ final class SamplerStore {
         }
     }
 
+    // MARK: - Tempo
+
+    /// From the library if it has the file, which knows Splice's tempos, and otherwise from the file's name.
+    private func tempo(of url: URL) -> Double? {
+        if let known = libraryTempo(url) { return known }
+        return SampleTempo.bpm(inName: url.deletingPathExtension().lastPathComponent)
+    }
+
+    /// The library has looked through its folders. Sounds put on pads before it knew their tempos get them now. A
+    /// tempo already there, found or typed in, stays.
+    func libraryDidScan() {
+        var changed = false
+        for index in slots.indices where slots[index].sourceBPM == nil {
+            guard let url = slots[index].url, let bpm = tempo(of: url) else { continue }
+            slots[index].sourceBPM = bpm
+            changed = true
+        }
+        if changed { saveSoon() }
+    }
+
+    /// Typed in, for a sound whose tempo wasn't known or was wrong. A loop that's twice as fast as it sounds can be
+    /// given double its tempo to play in half time.
+    func setSampleTempo(_ bpm: Double?, of index: Int) {
+        let tempo = bpm.map { min(max($0, 30), 300) }
+        guard slots[index].sourceBPM != tempo else { return }
+        slots[index].sourceBPM = tempo
+        if tempo == nil { slots[index].followsTempo = false }
+        matchTempo(index)
+        saveSoon()
+    }
+
+    /// Changes the sound's speed, not its pitch, so it plays at the sampler's tempo, and keeps doing so as the tempo
+    /// changes.
+    func setFollowsTempo(_ follows: Bool, of index: Int) {
+        slots[index].followsTempo = follows && slots[index].sourceBPM != nil
+        matchTempo(index)
+        saveSoon()
+    }
+
+    private func matchTempo(_ index: Int) {
+        guard slots[index].followsTempo, slots[index].path != nil, let source = slots[index].sourceBPM else { return }
+        let speed = SampleTempo.speed(from: source, to: sequencer.pattern.bpm)
+        guard abs(slots[index].speed - speed) > 0.0001 else { return }
+        slots[index].speed = speed
+        // Stretching takes a moment, so it waits for the tempo to stop changing. The last version plays meanwhile.
+        settleSoon(index)
+    }
+
+    private func followTempoChange() {
+        let tempo = sequencer.pattern.bpm
+        guard tempo != lastFollowedTempo else { return }
+        lastFollowedTempo = tempo
+        for index in slots.indices where slots[index].followsTempo {
+            matchTempo(index)
+        }
+    }
+
     /// Starts the loudest reading over, for a pad or the keyboard, or for the master when there's no slot.
     func resetLoudest(of slot: Int?) {
         if let slot { padStates[slot].loudest = 0 } else { masterLoudest = 0 }
@@ -406,6 +469,8 @@ final class SamplerStore {
     func setKnob(_ knob: SamplerKnob, toPosition position: Double, of index: Int) {
         guard slots[index].path != nil else { return }
         let before = slots[index]
+        // Turning Speed by hand takes over from following the tempo.
+        if knob == .speed { slots[index].followsTempo = false }
         slots[index].set(knob, toPosition: position)
         guard slots[index] != before else { return }
 

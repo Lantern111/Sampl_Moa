@@ -55,6 +55,13 @@ struct SampleTable: NSViewRepresentable {
         tableView.delegate = context.coordinator
         tableView.autosaveName = "SampleColumnsWide"
         tableView.autosaveTableColumns = true
+        // A column added in an update would otherwise go wherever the saved layout leaves it, often past the edge.
+        // Columns can't be reordered by hand, so BPM always goes right after Length.
+        let bpm = tableView.column(withIdentifier: NSUserInterfaceItemIdentifier(SampleColumn.bpm.rawValue))
+        let length = tableView.column(withIdentifier: NSUserInterfaceItemIdentifier(SampleColumn.length.rawValue))
+        if bpm >= 0, length >= 0, bpm != length + 1 {
+            tableView.moveColumn(bpm, toColumn: bpm > length ? length + 1 : length)
+        }
         tableView.onDragStart = { [weak coordinator = context.coordinator] rows, event in
             coordinator?.beginDrag(of: rows, with: event)
         }
@@ -374,7 +381,7 @@ private final class SampleTextCell: NSTableCellView {
         label.lineBreakMode = column == .name ? .byTruncatingMiddle : .byTruncatingTail
         label.font = switch column {
         case .name: .systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
-        case .length: .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        case .length, .bpm: .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         default: .systemFont(ofSize: NSFont.systemFontSize)
         }
         addSubview(label)
@@ -516,6 +523,7 @@ private extension SampleColumn {
         case .category: 84
         case .genre: 110
         case .length: 48
+        case .bpm: 44
         case .added: 92
         }
     }
@@ -526,12 +534,12 @@ private extension SampleColumn {
         case .name: 180
         case .collection: 70
         case .category, .genre, .added: 50
-        case .length: 40
+        case .length, .bpm: 40
         }
     }
 
     var alignment: NSTextAlignment {
-        self == .length ? .right : .left
+        self == .length || self == .bpm ? .right : .left
     }
 
     func text(for sample: Sample) -> String {
@@ -542,6 +550,7 @@ private extension SampleColumn {
         case .category: return sample.category.title
         case .genre: return sample.genres.first?.title ?? "–"
         case .length: return sample.duration.map(formattedLength) ?? "–"
+        case .bpm: return sample.bpm.map { String(Int($0.rounded())) } ?? "–"
         case .added:
             return sample.addedAt == .distantPast ? "–" : sample.addedAt.formatted(date: .numeric, time: .omitted)
         }

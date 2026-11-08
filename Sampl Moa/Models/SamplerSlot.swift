@@ -217,6 +217,10 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
     var pan: Float = 0
     /// On the keyboard, gives every key the same length so that the notes of a chord stay together.
     var keepsLength = false
+    /// The tempo the sound was recorded at, from Splice, its name, or typed in. Nil when it isn't known.
+    var sourceBPM: Double?
+    /// Whether its speed follows the sampler's tempo, so a loop stays in time when the tempo changes.
+    var followsTempo = false
 
     var url: URL? {
         path.map { URL(fileURLWithPath: $0) }
@@ -248,6 +252,8 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
         filter = try values.decodeIfPresent(Float.self, forKey: .filter) ?? defaults.filter
         pan = try values.decodeIfPresent(Float.self, forKey: .pan) ?? defaults.pan
         keepsLength = try values.decodeIfPresent(Bool.self, forKey: .keepsLength) ?? defaults.keepsLength
+        sourceBPM = try values.decodeIfPresent(Double.self, forKey: .sourceBPM)
+        followsTempo = try values.decodeIfPresent(Bool.self, forKey: .followsTempo) ?? defaults.followsTempo
     }
 
     // MARK: - Knobs

@@ -60,8 +60,17 @@ nonisolated enum SampleScanner {
                 pack: pack
             )
 
+            // What Splice says wins. A one-shot has no tempo, whatever numbers are in its name.
+            let bpm: Double? = if let details, details.bpm > 0 {
+                Double(details.bpm)
+            } else if details?.isLoop == false {
+                nil
+            } else {
+                SampleTempo.bpm(inName: name)
+            }
+
             return makeSample(
-                url: url, name: name, collection: pack, source: .splice, category: category, genres: genres,
+                url: url, name: name, collection: pack, source: .splice, category: category, genres: genres, bpm: bpm,
                 extraSearchText: details?.tags.joined(separator: " ") ?? "", values: values
             )
         }
@@ -81,6 +90,7 @@ nonisolated enum SampleScanner {
                 source: .folder(folder),
                 category: SampleCategory.classify(fileName: name, folders: folders, pack: folder.lastPathComponent),
                 genres: SampleGenre.guess(fileName: name, folders: [folder.lastPathComponent] + folders),
+                bpm: SampleTempo.bpm(inName: name),
                 extraSearchText: folders.joined(separator: " "),
                 values: values
             )
@@ -113,11 +123,14 @@ nonisolated enum SampleScanner {
         source: SampleSource,
         category: SampleCategory,
         genres: [SampleGenre],
+        bpm: Double?,
         extraSearchText: String,
         values: URLResourceValues
     ) -> Sample {
         let genreText = genres.flatMap { [$0.id, $0.title] + $0.aliases }.joined(separator: " ")
-        let searchText = [name, collection, category.title, category.searchTerms, genreText, extraSearchText]
+        // So "90bpm" or "90 bpm" finds loops at 90.
+        let tempoText = bpm.map { "\(Int($0))bpm \(Int($0)) bpm" } ?? ""
+        let searchText = [name, collection, category.title, category.searchTerms, genreText, tempoText, extraSearchText]
             .joined(separator: " ")
 
         return Sample(
@@ -127,6 +140,7 @@ nonisolated enum SampleScanner {
             source: source,
             category: category,
             genres: genres,
+            bpm: bpm,
             addedAt: values.creationDate ?? .distantPast,
             searchText: SampleSearch.normalize(searchText),
             availability: CloudFiles.isOnThisMac(url) ? .onThisMac : .inCloud

@@ -18,6 +18,8 @@ nonisolated struct Sample: Identifiable, Hashable, Sendable {
     let source: SampleSource
     let category: SampleCategory
     let genres: [SampleGenre]
+    /// The tempo of a loop, from Splice or the file's name. Nil for one-shots and anything that doesn't say.
+    let bpm: Double?
     let addedAt: Date
     /// Normalized text that the search box looks through.
     let searchText: String
@@ -53,7 +55,7 @@ enum LibraryScope: Hashable {
 }
 
 enum SampleColumn: String, CaseIterable {
-    case play, name, collection, category, genre, length, added
+    case play, name, collection, category, genre, length, bpm, added
 
     var title: String {
         switch self {
@@ -63,6 +65,7 @@ enum SampleColumn: String, CaseIterable {
         case .category: String(localized: "Type")
         case .genre: String(localized: "Genre")
         case .length: String(localized: "Length")
+        case .bpm: "BPM"
         case .added: String(localized: "Date Added")
         }
     }
@@ -79,6 +82,7 @@ struct SampleSort: Equatable {
         case .category: lhs.category.title.localizedStandardCompare(rhs.category.title)
         case .genre: (lhs.genres.first?.title ?? "").localizedStandardCompare(rhs.genres.first?.title ?? "")
         case .length: Self.compare(lhs.duration ?? -1, rhs.duration ?? -1)
+        case .bpm: Self.compare(lhs.bpm ?? -1, rhs.bpm ?? -1)
         case .added: Self.compare(lhs.addedAt, rhs.addedAt)
         }
         if result != .orderedSame {

@@ -76,12 +76,13 @@ struct SamplerEditor: View {
         }
     }
 
-    /// How the sound itself plays, as opposed to how it's mixed. One row when there's room, otherwise two.
+    /// How the sound itself plays, as opposed to how it's mixed. One row when there's room, otherwise two or three.
     private var settings: some View {
         ViewThatFits(in: .horizontal) {
             HStack(alignment: .top, spacing: 18) {
                 playMode
                 knobs
+                tempo
                 extraSettings
                 Spacer(minLength: 0)
             }
@@ -89,11 +90,61 @@ struct SamplerEditor: View {
                 HStack(alignment: .top, spacing: 18) {
                     playMode
                     knobs
+                    tempo
                     Spacer(minLength: 0)
                 }
                 extraSettings
             }
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 18) {
+                    playMode
+                    knobs
+                    Spacer(minLength: 0)
+                }
+                tempo
+                extraSettings
+            }
         }
+    }
+
+    /// The tempo the sound was recorded at, and whether it follows the sampler's.
+    private var tempo: some View {
+        labeled("Sample Tempo") {
+            HStack(spacing: 6) {
+                TextField(
+                    "BPM",
+                    value: Binding(get: { slot.sourceBPM }, set: { sampler.setSampleTempo($0, of: slotIndex) }),
+                    format: .number.precision(.fractionLength(0...1)),
+                    prompt: Text(verbatim: "–")
+                )
+                .textFieldStyle(.roundedBorder)
+                .controlSize(.small)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 48)
+                .help("The tempo this sound was recorded at. Splice and most sample names say. Type it in if it’s missing or wrong.")
+                .accessibilityLabel(Text("Sample Tempo"))
+
+                Text(verbatim: "BPM")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize()
+
+                Toggle(isOn: Binding(get: { slot.followsTempo }, set: { sampler.setFollowsTempo($0, of: slotIndex) })) {
+                    Label("Follow Tempo", systemImage: "metronome")
+                }
+                .toggleStyle(.button)
+                .controlSize(.small)
+                .fixedSize()
+                .disabled(slot.sourceBPM == nil)
+                .help(followHelp)
+            }
+        }
+    }
+
+    private var followHelp: String {
+        guard slot.sourceBPM != nil else { return String(localized: "Type in the sound’s tempo first.") }
+        let tempo = Int(sampler.sequencer.pattern.bpm.rounded())
+        return String(localized: "Changes the speed, not the pitch, so this plays at the sampler’s \(tempo) BPM, and keeps up when the tempo changes. Turning Speed yourself stops it.")
     }
 
     private var playMode: some View {

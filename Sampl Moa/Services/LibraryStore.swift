@@ -67,6 +67,9 @@ final class LibraryStore {
     init() {
         addedFolders = folderAccess.restoreFolders()
         rescan()
+        sampler.libraryTempo = { [weak self] url in
+            self?.samples.first { $0.url.path == url.path }.map(\.bpm)
+        }
     }
 
     var title: String {
@@ -143,6 +146,7 @@ final class LibraryStore {
             }
             isScanning = false
             hasFinishedFirstScan = true
+            sampler.libraryDidScan()
 
             await loadMissingDurations()
         }

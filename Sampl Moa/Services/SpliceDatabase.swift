@@ -6,6 +6,8 @@ nonisolated struct SpliceSampleInfo: Sendable {
     let tags: [String]
     let packGenre: String?
     let isLoop: Bool
+    /// 0 when Splice doesn't give one, as for one-shots.
+    var bpm = 0
 }
 
 /// Reads the sample details Splice keeps in its own database, one per account. This is Splice's private format and
@@ -55,13 +57,24 @@ nonisolated enum SpliceDatabase {
         defer { sqlite3_close(connection) }
         guard sqlite3_open(database.path, &connection) == SQLITE_OK else { return [:] }
 
-        let query = """
+        // A database without tempos still has everything else, so it's asked again without them.
+        let withTempo = """
+            SELECT s.filename, s.local_path, s.tags, s.sample_type, p.genre, s.bpm
+            FROM samples s LEFT JOIN packs p ON p.uuid = s.pack_uuid
+            """
+        let withoutTempo = """
             SELECT s.filename, s.local_path, s.tags, s.sample_type, p.genre
             FROM samples s LEFT JOIN packs p ON p.uuid = s.pack_uuid
             """
         var statement: OpaquePointer?
         defer { sqlite3_finalize(statement) }
-        guard sqlite3_prepare_v2(connection, query, -1, &statement, nil) == SQLITE_OK else { return [:] }
+        var hasTempo = true
+        if sqlite3_prepare_v2(connection, withTempo, -1, &statement, nil) != SQLITE_OK {
+            sqlite3_finalize(statement)
+            statement = nil
+            hasTempo = false
+            guard sqlite3_prepare_v2(connection, withoutTempo, -1, &statement, nil) == SQLITE_OK else { return [:] }
+        }
 
         func text(_ column: Int32) -> String? {
             sqlite3_column_text(statement, column).map { String(cString: $0) }
@@ -75,7 +88,8 @@ nonisolated enum SpliceDatabase {
             info[fileName.lowercased()] = SpliceSampleInfo(
                 tags: (text(2) ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces).lowercased() },
                 packGenre: text(4)?.lowercased(),
-                isLoop: text(3) == "loop"
+                isLoop: text(3) == "loop",
+                bpm: hasTempo ? Int(sqlite3_column_int(statement, 5)) : 0
             )
         }
         return info
