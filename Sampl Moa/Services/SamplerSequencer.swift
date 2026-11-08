@@ -5,7 +5,7 @@ import Observation
 @Observable
 final class SamplerSequencer {
     private static let countInBeats = 4
-    private static let bpmRange = 30.0...300.0
+    static let bpmRange = 30.0...300.0
     /// How long a note counts for if it's still held when it needs to be placed, in beats.
     private static let shortestNote = 0.25
 

@@ -111,12 +111,9 @@ struct SamplerEditor: View {
     private var tempo: some View {
         labeled("Sample Tempo") {
             HStack(spacing: 6) {
-                TextField(
-                    "BPM",
-                    value: Binding(get: { slot.sourceBPM }, set: { sampler.setSampleTempo($0, of: slotIndex) }),
-                    format: .number.precision(.fractionLength(0...1)),
-                    prompt: Text(verbatim: "–")
-                )
+                SamplerNumberField(value: slot.sourceBPM, range: SamplerSequencer.bpmRange, allowsEmpty: true) { bpm in
+                    sampler.setSampleTempo(bpm, of: slotIndex)
+                }
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.small)
                 .multilineTextAlignment(.trailing)

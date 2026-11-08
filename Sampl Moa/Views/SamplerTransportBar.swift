@@ -13,7 +13,7 @@ struct SamplerTransportBar: View {
     var body: some View {
         HStack(spacing: 10) {
             transportButtons
-            positionReadout
+            SamplerPositionReadout(sequencer: sequencer)
 
             Divider().frame(height: 18)
 
@@ -79,26 +79,11 @@ struct SamplerTransportBar: View {
         .controlSize(.small)
     }
 
-    private var positionReadout: some View {
-        Text(verbatim: positionText)
-            .font(.callout.monospacedDigit())
-            .foregroundStyle(sequencer.isPlaying ? .primary : .secondary)
-            .frame(width: 42, alignment: .leading)
-    }
-
-    private var positionText: String {
-        guard let position = sequencer.position else { return "1.1" }
-        if position < 0 { return "-\(Int(ceil(-position)))" }
-        let beat = Int(position)
-        return "\(beat / 4 + 1).\(beat % 4 + 1)"
-    }
-
     private var tempo: some View {
         HStack(spacing: 4) {
-            TextField("BPM", value: Binding(
-                get: { sequencer.pattern.bpm },
-                set: { sequencer.setBPM($0) }
-            ), format: .number.precision(.fractionLength(0)))
+            SamplerNumberField(value: sequencer.pattern.bpm, range: SamplerSequencer.bpmRange) { bpm in
+                if let bpm { sequencer.setBPM(bpm) }
+            }
             .textFieldStyle(.roundedBorder)
             .controlSize(.small)
             .multilineTextAlignment(.trailing)
@@ -172,6 +157,26 @@ struct SamplerTransportBar: View {
             .accessibilityLabel(Text("Click Track"))
         }
         .controlSize(.small)
+    }
+}
+
+/// Where the music is, in bars and beats. Kept apart, because it changes many times a second while playing, and
+/// redrawing the whole bar that often would also reset what's being typed in the tempo field.
+private struct SamplerPositionReadout: View {
+    let sequencer: SamplerSequencer
+
+    var body: some View {
+        Text(verbatim: text)
+            .font(.callout.monospacedDigit())
+            .foregroundStyle(sequencer.isPlaying ? .primary : .secondary)
+            .frame(width: 42, alignment: .leading)
+    }
+
+    private var text: String {
+        guard let position = sequencer.position else { return "1.1" }
+        if position < 0 { return "-\(Int(ceil(-position)))" }
+        let beat = Int(position)
+        return "\(beat / 4 + 1).\(beat % 4 + 1)"
     }
 }
 
