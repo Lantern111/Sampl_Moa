@@ -27,40 +27,22 @@ nonisolated enum SamplerGraph {
         slotPlugins: [Int: [AVAudioUnit]]
     ) -> Built {
         mixer.setIsolatedSlots(Set(slotPlugins.keys))
-        let masterEQ = AVAudioUnitEQ(numberOfBands: 3)
+        let masterEQ = AVAudioUnitEQ(numberOfBands: 4)
         configure(masterEQ, for: settings)
 
         let master = AVAudioMixerNode()
-        let delay = AVAudioUnitDelay()
-        delay.delayTime = 0.375
-        delay.feedback = 35
-        delay.lowPassCutoff = 9000
-        delay.wetDryMix = 100
-        let reverb = AVAudioUnitReverb()
-        reverb.loadFactoryPreset(.plate)
-        reverb.wetDryMix = 100
 
-        // Only this first one does the mixing. A mixer asks its inputs in order, so this goes first and the others
-        // read what it made.
+        // Only this first one does the mixing. A mixer asks its inputs in order, so this goes first and the sounds
+        // kept apart for their own plug-ins read what it made.
         let sounds = source(format: format) { [mixer] frames, left, right in
             mixer.render(frames: frames, left: left, right: right)
         }
-        let delaySend = source(format: format) { [mixer] frames, left, right in
-            mixer.copy(.delay, frames: frames, left: left, right: right)
-        }
-        let reverbSend = source(format: format) { [mixer] frames, left, right in
-            mixer.copy(.reverb, frames: frames, left: left, right: right)
-        }
 
-        var nodes: [AVAudioNode] = [master, masterEQ, delay, reverb, sounds, delaySend, reverbSend]
+        var nodes: [AVAudioNode] = [master, masterEQ, sounds]
         nodes.append(contentsOf: plugins)
         nodes.forEach(engine.attach)
 
         engine.connect(sounds, to: master, format: format)
-        engine.connect(delaySend, to: delay, format: format)
-        engine.connect(delay, to: master, format: format)
-        engine.connect(reverbSend, to: reverb, format: format)
-        engine.connect(reverb, to: master, format: format)
 
         for (slot, units) in slotPlugins.sorted(by: { $0.key < $1.key }) {
             let slotSource = source(format: format) { [mixer] frames, left, right in
@@ -89,7 +71,8 @@ nonisolated enum SamplerGraph {
         return Built(nodes: nodes, masterEQ: masterEQ, last: last)
     }
 
-    /// The master's volume is the EQ's overall gain, which goes up to +24 dB where a mixer's volume stops at 0.
+    /// The master's volume is the EQ's overall gain, which goes up to +24 dB where a mixer's volume stops at 0. Its
+    /// fourth band is the filter knob.
     static func configure(_ eq: AVAudioUnitEQ, for settings: SamplerMaster) {
         let shapes: [(AVAudioUnitEQFilterType, Float, Double)] = [
             (.lowShelf, 150, settings.eqLow),
@@ -102,6 +85,21 @@ nonisolated enum SamplerGraph {
             band.bandwidth = 1.25
             band.gain = Float(shape.2)
             band.bypass = false
+        }
+        if eq.bands.count > 3 {
+            let filter = eq.bands[3]
+            switch SamplerFilterSweep.shape(of: settings.filter) {
+            case .off:
+                filter.bypass = true
+            case .lowPass(let frequency):
+                filter.filterType = .lowPass
+                filter.frequency = Float(frequency)
+                filter.bypass = false
+            case .highPass(let frequency):
+                filter.filterType = .highPass
+                filter.frequency = Float(frequency)
+                filter.bypass = false
+            }
         }
         eq.globalGain = settings.gain > 0.0001 ? Float(20 * log10(Double(settings.gain))) : -96
     }
@@ -141,6 +139,10 @@ nonisolated final class SamplerEngine: @unchecked Sendable {
     private var slotPlugins: [Int: [AVAudioUnit]] = [:]
     private var isWanted = false
     private var isConnected = false
+    /// Paused while the sampler is quiet. An output that keeps running, even in silence, keeps the Mac's audio
+    /// hardware and processor busy around 90 times a second, which a laptop's battery feels.
+    private var isAsleep = false
+    private var isWatching = false
     private var master = SamplerMaster()
     private var masterEQ: AVAudioUnitEQ?
     private var meteredNode: AVAudioNode?
@@ -171,22 +173,45 @@ nonisolated final class SamplerEngine: @unchecked Sendable {
     /// Changes often come several at once, so they're answered together a moment later.
     private func scheduleRecovery() {
         queue.async {
-            guard self.isWanted, !self.isRecoveryScheduled else { return }
+            // While asleep the change is left for waking, which checks the output anyway.
+            guard self.isWanted, !self.isAsleep, !self.isRecoveryScheduled else { return }
             self.isRecoveryScheduled = true
             self.queue.asyncAfter(deadline: .now() + 0.15) {
                 self.isRecoveryScheduled = false
-                if self.isWanted { self.recover() }
+                if self.isWanted, !self.isAsleep { self.recover() }
             }
         }
     }
 
     /// A change can arrive without any notice, and then nothing would start the engine again. So while the sampler is
-    /// open, this looks once a second.
+    /// open and awake, this looks once a second.
     private func keepWatching() {
+        isWatching = true
         queue.asyncAfter(deadline: .now() + 1) {
-            guard self.isWanted else { return }
+            guard self.isWanted, !self.isAsleep else {
+                self.isWatching = false
+                return
+            }
             if !self.engine.isRunning, !self.isRecoveryScheduled { self.recover() }
             self.keepWatching()
+        }
+    }
+
+    /// Pauses the output while nothing's playing. Everything stays ready, so waking takes only about 40 ms.
+    func sleep() {
+        queue.async {
+            guard self.isWanted, self.isConnected, !self.isAsleep else { return }
+            self.engine.pause()
+            self.isAsleep = true
+        }
+    }
+
+    func wake() {
+        queue.async {
+            guard self.isWanted, self.isAsleep else { return }
+            self.isAsleep = false
+            self.recover()
+            if !self.isWatching { self.keepWatching() }
         }
     }
 
@@ -226,23 +251,27 @@ nonisolated final class SamplerEngine: @unchecked Sendable {
         queue.async {
             self.plugins = list.everything
             self.slotPlugins = list.slots
-            if self.isWanted { _ = self.reconnect() }
+            guard self.isWanted else { return }
+            _ = self.reconnect()
+            // A change made while asleep, like switching a plug-in off, doesn't wake the output.
+            if self.isAsleep { self.engine.pause() }
         }
     }
 
     /// `completion` says whether sound can now be heard. It runs on a background thread.
     func start(completion: @escaping @Sendable (Bool) -> Void) {
         queue.async {
-            let wasWanted = self.isWanted
             self.isWanted = true
+            self.isAsleep = false
             completion(self.reconnect())
-            if !wasWanted { self.keepWatching() }
+            if !self.isWatching { self.keepWatching() }
         }
     }
 
     func stop() {
         queue.async {
             self.isWanted = false
+            self.isAsleep = false
             self.engine.stop()
             self.mixer.resetWhileNotRendering()
             self.mixer.stopTransportWhileNotRendering()

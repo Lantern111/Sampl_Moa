@@ -20,6 +20,7 @@ struct SamplerInspector: View {
         }
         .frame(width: Self.width)
         .background(.background)
+        .onHover { if $0 { sampler.wakeAudio() } }
     }
 }
 
@@ -60,16 +61,17 @@ struct SamplerChannelStrip: View {
                 SamplerPluginSlots(effects: sampler.effects, slot: slotForPlugins, rows: pluginRows)
             }
 
-            // Like Stereo Out in Logic Pro, the master has no sends. The space stays, so the faders still line up.
-            section("Sends") {
+            // The master has a filter for the whole beat but no pan. Its space stays, so the faders still line up.
+            section("Filter & Pan") {
                 HStack(spacing: 0) {
-                    knob(.delay)
-                    knob(.reverb)
+                    knob(.filter)
+                    knob(.pan)
+                        .opacity(isMaster ? 0 : 1)
+                        .allowsHitTesting(!isMaster)
+                        .accessibilityHidden(isMaster)
                 }
             }
-            .opacity(isMaster ? 0 : 1)
-            .allowsHitTesting(!isMaster)
-            .accessibilityHidden(isMaster)
+            .help("Filter: left of the middle cuts the highs, right cuts the lows. Double-click a knob to put it back in the middle.")
 
             SamplerFader(
                 position: position(of: .volume),

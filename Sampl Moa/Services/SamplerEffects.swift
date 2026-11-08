@@ -2,10 +2,13 @@ import AVFoundation
 import AppKit
 import CoreAudioKit
 import Observation
+import SwiftUI
 
 /// Audio Unit plug-ins, the same kind Logic Pro uses, on one pad or on everything the sampler plays.
 ///
-/// They run in a separate process wherever they can. A plug-in that crashes then can't take the app down with it.
+/// Other companies' plug-ins run in a separate process wherever they can, so one that crashes can't take the app down
+/// with it. Apple's own run inside the app, which saves handing every block of sound to another process and back.
+/// A plug-in that's switched off is taken out of the sound altogether, rather than being passed sound to ignore.
 @Observable
 final class SamplerEffects {
     struct Available: Identifiable, Hashable {
@@ -68,6 +71,8 @@ final class SamplerEffects {
 
     @ObservationIgnored private let engine: SamplerEngine
     @ObservationIgnored private let onChange: () -> Void
+    /// The recorder's tempo, for setting a delay in time with it.
+    @ObservationIgnored var tempo: () -> Double = { 120 }
 
     init(engine: SamplerEngine, onChange: @escaping () -> Void) {
         self.engine = engine
@@ -195,6 +200,7 @@ final class SamplerEffects {
     }
 
     private func load(_ plugin: Available) async -> AVAudioUnit? {
+        if plugin.manufacturerCode == kAudioUnitManufacturer_Apple, let unit = await load(plugin, options: []) { return unit }
         if let unit = await load(plugin, options: .loadOutOfProcess) { return unit }
         return await load(plugin, options: [])
     }
@@ -237,10 +243,10 @@ final class SamplerEffects {
 
     private func sendChainsToEngine() {
         var slotPlugins: [Int: [AVAudioUnit]] = [:]
-        for plugin in loaded {
+        for plugin in loaded where plugin.isOn {
             if let slot = plugin.slot { slotPlugins[slot, default: []].append(plugin.unit) }
         }
-        engine.setPlugins(chain(for: nil).map(\.unit), slotPlugins: slotPlugins)
+        engine.setPlugins(chain(for: nil).filter(\.isOn).map(\.unit), slotPlugins: slotPlugins)
     }
 
     private func readSettings() {
@@ -260,9 +266,10 @@ final class SamplerEffects {
         onChange()
     }
 
+    /// Switching a plug-in off or on rebuilds the chain, which stops any sound for a moment, the same as adding one.
     func setOn(_ isOn: Bool, for plugin: Loaded) {
         plugin.isOn = isOn
-        readSettings()
+        chainChanged()
     }
 
     // MARK: - Plug-in windows
@@ -270,6 +277,21 @@ final class SamplerEffects {
     func openEditor(of plugin: Loaded) {
         if let window = plugin.window {
             window.makeKeyAndOrderFront(nil)
+            return
+        }
+        // The built-in effects have windows of this app's own, since Apple's are hard to make sense of.
+        if let effect = SamplerBuiltInEffect.matching(type: plugin.source.type, subType: plugin.source.subType, manufacturer: plugin.source.manufacturerCode) {
+            let editor = NSHostingController(rootView: SamplerEffectEditor(
+                effect: effect,
+                plugin: plugin,
+                onTurnOn: { [weak self, weak plugin] isOn in
+                    guard let self, let plugin else { return }
+                    self.setOn(isOn, for: plugin)
+                },
+                tempo: { [weak self] in self?.tempo() ?? 120 }
+            ))
+            editor.sizingOptions = .preferredContentSize
+            showWindow(for: plugin, with: editor, isDark: true)
             return
         }
         plugin.unit.auAudioUnit.requestViewController { [weak self, weak plugin] controller in
@@ -283,7 +305,7 @@ final class SamplerEffects {
     }
 
     /// A plug-in with no window of its own still gets plain controls for its settings.
-    private func showWindow(for plugin: Loaded, with controller: NSViewController?) {
+    private func showWindow(for plugin: Loaded, with controller: NSViewController?, isDark: Bool = false) {
         let content: NSViewController
         if let controller {
             content = controller
@@ -296,6 +318,13 @@ final class SamplerEffects {
         let window = NSWindow(contentViewController: content)
         window.title = plugin.name
         window.isReleasedWhenClosed = false
+        if isDark {
+            window.appearance = NSAppearance(named: .darkAqua)
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.backgroundColor = NSColor(white: 0.12, alpha: 1)
+            window.styleMask.remove(.resizable)
+        }
         if content.preferredContentSize != .zero {
             window.setContentSize(content.preferredContentSize)
         }

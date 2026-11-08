@@ -249,6 +249,26 @@
         }
       }
     },
+    "At the Tempo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "템포에 맞추기"
+          }
+        }
+      }
+    },
+    "Attack": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어택"
+          }
+        }
+      }
+    },
     "Audio FX": {
       "localizations": {
         "ko": {
@@ -589,6 +609,16 @@
         }
       }
     },
+    "Crush": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "크러시"
+          }
+        }
+      }
+    },
     "Cut": {
       "localizations": {
         "ko": {
@@ -605,6 +635,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "끊기 그룹"
+          }
+        }
+      }
+    },
+    "Cutoff": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "컷오프"
           }
         }
       }
@@ -629,12 +669,32 @@
         }
       }
     },
+    "Damping": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "댐핑"
+          }
+        }
+      }
+    },
     "Date Added": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "받은 날짜"
+          }
+        }
+      }
+    },
+    "Decay": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디케이"
           }
         }
       }
@@ -679,12 +739,12 @@
         }
       }
     },
-    "Down the side of the window, like the inspector in Logic Pro, are the selected sound’s channel strip and the Master’s. The Master shapes everything together without touching each pad’s balance. Click Device Knobs on a strip to turn it with your device’s knobs. Double-click any control to put it back.": {
+    "Down the side of the window, like the inspector in Logic Pro, are the selected sound’s channel strip and the Master’s. The Master shapes everything together without touching each pad’s balance. Turn Filter left to cut the highs or right to cut the lows, like on a DJ mixer. Click Device Knobs on a strip to turn it with your device’s knobs.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "창 옆에는 Logic Pro의 인스펙터처럼 선택한 사운드의 채널 스트립과 마스터 스트립이 있습니다. 마스터는 패드마다 맞춘 밸런스는 그대로 두고 전체 소리를 다듬습니다. 스트립 위쪽의 기기 노브를 누르면 기기의 노브로 그 스트립을 조절합니다. 어떤 컨트롤이든 더블 클릭하면 원래대로 돌아갑니다."
+            "value": "창 옆에는 Logic Pro의 인스펙터처럼 선택한 사운드의 채널 스트립과 마스터 스트립이 있습니다. 마스터는 패드마다 맞춘 밸런스는 그대로 두고 전체 소리를 다듬습니다. 필터는 DJ 믹서처럼 왼쪽으로 돌리면 고음이, 오른쪽으로 돌리면 저음이 깎입니다. 스트립 위쪽의 기기 노브를 누르면 기기의 노브로 그 스트립을 조절합니다."
           }
         }
       }
@@ -775,6 +835,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "목록의 샘플을 패드로 끌어다 놓으세요. 여러 개를 끌면 다음 패드까지 차례로 채워집니다. 샘플을 선택한 뒤 빈 패드를 클릭해도 됩니다."
+          }
+        }
+      }
+    },
+    "Drive": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "드라이브"
           }
         }
       }
@@ -889,6 +959,46 @@
         }
       }
     },
+    "Feedback": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드백"
+          }
+        }
+      }
+    },
+    "Filter": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "필터"
+          }
+        }
+      }
+    },
+    "Filter & Pan": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "필터 · 팬"
+          }
+        }
+      }
+    },
+    "Filter: left of the middle cuts the highs, right cuts the lows. Double-click a knob to put it back in the middle.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "필터: 가운데에서 왼쪽으로 돌리면 고음이, 오른쪽으로 돌리면 저음이 깎입니다. 노브를 더블 클릭하면 가운데로 돌아갑니다."
+          }
+        }
+      }
+    },
     "Find a Pack": {
       "localizations": {
         "ko": {
@@ -925,6 +1035,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "폴더"
+          }
+        }
+      }
+    },
+    "Frequency": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주파수"
+          }
+        }
+      }
+    },
+    "G to ' play the keys, starting from %@. − and = change the octave.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "G부터 '까지 %@부터 한 옥타브를 연주합니다. −와 =로 옥타브를 바꿉니다."
+          }
+        }
+      }
+    },
+    "Gain": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "게인"
           }
         }
       }
@@ -969,6 +1109,16 @@
         }
       }
     },
+    "Headroom": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "헤드룸"
+          }
+        }
+      }
+    },
     "Hi-hat": {
       "localizations": {
         "ko": {
@@ -989,6 +1139,16 @@
         }
       }
     },
+    "High Decay": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고음 디케이"
+          }
+        }
+      }
+    },
     "High-Pass Filter": {
       "localizations": {
         "ko": {
@@ -999,12 +1159,32 @@
         }
       }
     },
+    "Highs": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고음"
+          }
+        }
+      }
+    },
     "Hold": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "홀드"
+          }
+        }
+      }
+    },
+    "Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. − and = change the octave.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단축키는 Shift와 함께: ⇧R 녹음, ⇧K 메트로놈, ⇧C 찹. −와 =로 옥타브를 바꿉니다."
           }
         }
       }
@@ -1035,6 +1215,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "계속 표시되면 오디오 인터페이스를 다시 연결하거나 시스템 설정에서 다른 출력을 선택해 보세요."
+          }
+        }
+      }
+    },
+    "In": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력"
           }
         }
       }
@@ -1169,6 +1359,16 @@
         }
       }
     },
+    "Lookahead": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "룩어헤드"
+          }
+        }
+      }
+    },
     "Looking for your samples…": {
       "localizations": {
         "ko": {
@@ -1225,6 +1425,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "기기의 패드와 노브를 MIDI 매핑합니다. 기기별 매핑은 기억됩니다."
+          }
+        }
+      }
+    },
+    "Mac Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키보드로 연주"
           }
         }
       }
@@ -1289,6 +1499,16 @@
         }
       }
     },
+    "Mix": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "믹스"
+          }
+        }
+      }
+    },
     "Mix Like in Logic Pro": {
       "localizations": {
         "ko": {
@@ -1349,12 +1569,22 @@
         }
       }
     },
-    "No MIDI device connected": {
+    "No Device? Use Your Mac’s Keyboard": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연결된 MIDI 기기 없음"
+            "value": "기기가 없다면 맥 키보드로"
+          }
+        }
+      }
+    },
+    "No MIDI Device": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MIDI 기기 없음"
           }
         }
       }
@@ -1509,6 +1739,26 @@
         }
       }
     },
+    "Out": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "출력"
+          }
+        }
+      }
+    },
+    "Output": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "출력"
+          }
+        }
+      }
+    },
     "Overview": {
       "localizations": {
         "ko": {
@@ -1575,6 +1825,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "번호가 같은 패드끼리 소리를 끊습니다. 예를 들어 클로즈드 하이햇이 오픈 하이햇을 끊습니다."
+          }
+        }
+      }
+    },
+    "Pan": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팬"
           }
         }
       }
@@ -1709,6 +1969,16 @@
         }
       }
     },
+    "Play the pads and keys from your Mac’s keyboard. Each pad shows its key.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "맥 키보드로 패드와 건반을 연주합니다. 패드마다 눌러야 할 키가 표시됩니다."
+          }
+        }
+      }
+    },
     "Playback": {
       "localizations": {
         "ko": {
@@ -1735,6 +2005,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "플러그인은 프리셋을 문서나 음악 폴더에 두는 경우가 많고, macOS는 폴더마다 한 번씩 묻습니다. 지금 허용해 두면 연주 중에 방해받지 않습니다."
+          }
+        }
+      }
+    },
+    "Pre-delay": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프리딜레이"
           }
         }
       }
@@ -1839,6 +2119,16 @@
         }
       }
     },
+    "Puts every setting back where it started.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 설정을 처음 값으로 되돌립니다."
+          }
+        }
+      }
+    },
     "Record": {
       "localizations": {
         "ko": {
@@ -1865,6 +2155,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "비트 녹음하기"
+          }
+        }
+      }
+    },
+    "Release": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "릴리즈"
           }
         }
       }
@@ -1939,12 +2239,32 @@
         }
       }
     },
+    "Reset": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초기화"
+          }
+        }
+      }
+    },
     "Reset Mapping": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "매핑 초기화"
+          }
+        }
+      }
+    },
+    "Resonance": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "레조넌스"
           }
         }
       }
@@ -1975,6 +2295,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "리버브"
+          }
+        }
+      }
+    },
+    "Room": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "룸"
           }
         }
       }
@@ -2082,16 +2412,6 @@
         }
       }
     },
-    "Sends": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sends"
-          }
-        }
-      }
-    },
     "Sensitivity": {
       "localizations": {
         "ko": {
@@ -2128,6 +2448,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "샘플러 보기 또는 가리기"
+          }
+        }
+      }
+    },
+    "Size": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사이즈"
           }
         }
       }
@@ -2312,12 +2642,12 @@
         }
       }
     },
-    "These work while the sampler is open, except when you’re typing in a field.": {
+    "These work while the sampler is open, except when you’re typing in a field. While your Mac’s keyboard is playing the pads, hold Shift with them.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "샘플러가 열려 있으면 언제든 쓸 수 있습니다. 입력란에 글자를 입력하는 중에는 동작하지 않습니다."
+            "value": "샘플러가 열려 있으면 언제든 쓸 수 있고, 입력란에 글자를 입력하는 중에는 동작하지 않습니다. 맥 키보드로 패드를 연주하는 중에는 Shift와 함께 누르세요."
           }
         }
       }
@@ -2342,6 +2672,26 @@
         }
       }
     },
+    "Threshold": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스레숄드"
+          }
+        }
+      }
+    },
+    "Time": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "타임"
+          }
+        }
+      }
+    },
     "Timing": {
       "localizations": {
         "ko": {
@@ -2352,12 +2702,32 @@
         }
       }
     },
+    "Tone": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "톤"
+          }
+        }
+      }
+    },
     "Turn On": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "켜기"
+          }
+        }
+      }
+    },
+    "Turn on Mac Keyboard next to your device’s name. Z X C V, A S D F, Q W E R, and 1 2 3 4 play the pads in the same places as on screen, and each pad shows its key. G to ' play the keys like a piano, and − and = change the octave.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기 이름 옆의 ‘키보드로 연주’를 켜세요. 화면의 패드와 같은 자리에 있는 키로 패드를 연주하고(Z X C V, A S D F, Q W E R, 1 2 3 4), 패드마다 해당 키가 표시됩니다. G부터 '까지는 피아노 건반처럼 연주하고, −와 =로 옥타브를 바꿉니다."
           }
         }
       }
@@ -2462,6 +2832,16 @@
         }
       }
     },
+    "Warmth": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웜스"
+          }
+        }
+      }
+    },
     "Waveform": {
       "localizations": {
         "ko": {
@@ -2492,6 +2872,16 @@
         }
       }
     },
+    "Width": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폭"
+          }
+        }
+      }
+    },
     "Your device’s knobs turn this strip.": {
       "localizations": {
         "ko": {
@@ -2508,6 +2898,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "선택 영역 확대"
+          }
+        }
+      }
+    },
+    "filter.off": {
+      "comment": "A filter knob in the middle, doing nothing.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끔"
           }
         }
       }

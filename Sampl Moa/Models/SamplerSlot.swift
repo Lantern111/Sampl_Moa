@@ -17,7 +17,7 @@ nonisolated enum SamplerPlayMode: String, Codable, CaseIterable, Identifiable, S
 
 /// The eight controls every sound has, in the order of the knobs on a controller: two rows of four.
 nonisolated enum SamplerKnob: Int, CaseIterable, Identifiable, Sendable {
-    case volume, pitch, speed, delay, low, mid, high, reverb
+    case volume, pitch, speed, filter, low, mid, high, pan
 
     var id: Int { rawValue }
 
@@ -26,11 +26,11 @@ nonisolated enum SamplerKnob: Int, CaseIterable, Identifiable, Sendable {
         case .volume: String(localized: "Volume")
         case .pitch: String(localized: "Pitch")
         case .speed: String(localized: "Speed")
-        case .delay: String(localized: "Delay")
+        case .filter: String(localized: "Filter")
         case .low: String(localized: "Low")
         case .mid: String(localized: "Mid")
         case .high: String(localized: "High")
-        case .reverb: String(localized: "Reverb")
+        case .pan: String(localized: "Pan")
         }
     }
 
@@ -38,18 +38,59 @@ nonisolated enum SamplerKnob: Int, CaseIterable, Identifiable, Sendable {
     var neutralValue: Double {
         switch self {
         case .volume: SamplerFaderScale.unityPosition
-        case .delay, .reverb: 0
-        case .pitch, .speed, .low, .mid, .high: 0.5
+        case .pitch, .speed, .filter, .low, .mid, .high, .pan: 0.5
         }
     }
 
-    /// Whether the master has this control too. Pitch and speed only make sense for one sound.
-    /// The master has a fader and EQ. Pitch, speed and the sends always belong to the sound.
+    /// Whether the master has this control too. It has a fader, EQ and a filter. Pitch, speed and pan only make
+    /// sense for one sound.
     var appliesToMaster: Bool {
         switch self {
-        case .volume, .low, .mid, .high: true
-        case .pitch, .speed, .delay, .reverb: false
+        case .volume, .filter, .low, .mid, .high: true
+        case .pitch, .speed, .pan: false
         }
+    }
+}
+
+/// One knob for a filter, the way a DJ mixer has it: turning left of the middle closes a low-pass filter, turning right
+/// opens a high-pass one, and the middle leaves the sound alone. Each way runs from -1 to 1.
+nonisolated enum SamplerFilterSweep {
+    enum Shape: Equatable {
+        case off
+        case lowPass(Double)
+        case highPass(Double)
+    }
+
+    /// A little of the ring that makes a filter sweep sound like one.
+    static let resonance = 1.1
+
+    static func shape(of amount: Double) -> Shape {
+        if abs(amount) < 0.02 { return .off }
+        if amount < 0 { return .lowPass(20000 * pow(80.0 / 20000, -amount)) }
+        return .highPass(20 * pow(8000.0 / 20, amount))
+    }
+
+    static func reading(of amount: Double) -> String {
+        func hertz(_ frequency: Double) -> String {
+            frequency >= 1000 ? String(format: "%.1fk", frequency / 1000) : String(format: "%.0f", frequency)
+        }
+        switch shape(of: amount) {
+        case .off: return String(localized: "filter.off", defaultValue: "Off", comment: "A filter knob in the middle, doing nothing.")
+        case .lowPass(let frequency): return "LP " + hertz(frequency)
+        case .highPass(let frequency): return "HP " + hertz(frequency)
+        }
+    }
+
+    static func position(of amount: Double) -> Double { (amount + 1) / 2 }
+    static func amount(at position: Double) -> Double { position * 2 - 1 }
+}
+
+/// Left and right of a sound, like a mixer's pan knob. On a stereo sound it turns down the other side.
+nonisolated enum SamplerPan {
+    static func reading(of pan: Float) -> String {
+        let amount = Int((abs(pan) * 100).rounded())
+        if amount == 0 { return "C" }
+        return pan < 0 ? "L\(amount)" : "R\(amount)"
     }
 }
 
@@ -88,6 +129,8 @@ nonisolated struct SamplerMaster: Codable, Equatable, Sendable {
     var eqLow = 0.0
     var eqMid = 0.0
     var eqHigh = 0.0
+    /// A filter on everything, from -1 to 1: see `SamplerFilterSweep`.
+    var filter = 0.0
 
     init() {}
 
@@ -98,6 +141,7 @@ nonisolated struct SamplerMaster: Codable, Equatable, Sendable {
         eqLow = try values.decodeIfPresent(Double.self, forKey: .eqLow) ?? defaults.eqLow
         eqMid = try values.decodeIfPresent(Double.self, forKey: .eqMid) ?? defaults.eqMid
         eqHigh = try values.decodeIfPresent(Double.self, forKey: .eqHigh) ?? defaults.eqHigh
+        filter = try values.decodeIfPresent(Double.self, forKey: .filter) ?? defaults.filter
     }
 
     /// Nil for a control the master doesn't have.
@@ -107,7 +151,8 @@ nonisolated struct SamplerMaster: Codable, Equatable, Sendable {
         case .low: (eqLow + Self.eqRange) / (Self.eqRange * 2)
         case .mid: (eqMid + Self.eqRange) / (Self.eqRange * 2)
         case .high: (eqHigh + Self.eqRange) / (Self.eqRange * 2)
-        case .pitch, .speed, .delay, .reverb: nil
+        case .filter: SamplerFilterSweep.position(of: filter)
+        case .pitch, .speed, .pan: nil
         }
     }
 
@@ -119,7 +164,8 @@ nonisolated struct SamplerMaster: Codable, Equatable, Sendable {
         case .low: eqLow = position * Self.eqRange * 2 - Self.eqRange
         case .mid: eqMid = position * Self.eqRange * 2 - Self.eqRange
         case .high: eqHigh = position * Self.eqRange * 2 - Self.eqRange
-        case .pitch, .speed, .delay, .reverb: break
+        case .filter: filter = SamplerFilterSweep.amount(at: position)
+        case .pitch, .speed, .pan: break
         }
     }
 
@@ -129,7 +175,8 @@ nonisolated struct SamplerMaster: Codable, Equatable, Sendable {
         case .low: String(format: "%+.1f dB", eqLow)
         case .mid: String(format: "%+.1f dB", eqMid)
         case .high: String(format: "%+.1f dB", eqHigh)
-        case .pitch, .speed, .delay, .reverb: ""
+        case .filter: SamplerFilterSweep.reading(of: filter)
+        case .pitch, .speed, .pan: ""
         }
     }
 }
@@ -164,9 +211,10 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
     var eqLow = 0.0
     var eqMid = 0.0
     var eqHigh = 0.0
-    /// How much goes to the delay and reverb, from 0 to 1.
-    var delaySend: Float = 0
-    var reverbSend: Float = 0
+    /// From -1 to 1: see `SamplerFilterSweep`.
+    var filter: Float = 0
+    /// From -1, all the way left, to 1, all the way right.
+    var pan: Float = 0
     /// On the keyboard, gives every key the same length so that the notes of a chord stay together.
     var keepsLength = false
 
@@ -197,8 +245,8 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
         eqLow = try values.decodeIfPresent(Double.self, forKey: .eqLow) ?? defaults.eqLow
         eqMid = try values.decodeIfPresent(Double.self, forKey: .eqMid) ?? defaults.eqMid
         eqHigh = try values.decodeIfPresent(Double.self, forKey: .eqHigh) ?? defaults.eqHigh
-        delaySend = try values.decodeIfPresent(Float.self, forKey: .delaySend) ?? defaults.delaySend
-        reverbSend = try values.decodeIfPresent(Float.self, forKey: .reverbSend) ?? defaults.reverbSend
+        filter = try values.decodeIfPresent(Float.self, forKey: .filter) ?? defaults.filter
+        pan = try values.decodeIfPresent(Float.self, forKey: .pan) ?? defaults.pan
         keepsLength = try values.decodeIfPresent(Bool.self, forKey: .keepsLength) ?? defaults.keepsLength
     }
 
@@ -210,8 +258,8 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
         case .volume: SamplerFaderScale.position(of: volume)
         case .pitch: Double(tune + Self.tuneRange) / Double(Self.tuneRange * 2)
         case .speed: (log2(speed) + 1) / 2
-        case .delay: Double(delaySend)
-        case .reverb: Double(reverbSend)
+        case .filter: SamplerFilterSweep.position(of: Double(filter))
+        case .pan: Double(pan + 1) / 2
         case .low: (eqLow + Self.eqRange) / (Self.eqRange * 2)
         case .mid: (eqMid + Self.eqRange) / (Self.eqRange * 2)
         case .high: (eqHigh + Self.eqRange) / (Self.eqRange * 2)
@@ -227,8 +275,8 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
         case .volume: volume = SamplerFaderScale.gain(at: position)
         case .pitch: tune = Int((position * Double(Self.tuneRange * 2)).rounded()) - Self.tuneRange
         case .speed: speed = pow(2, position * 2 - 1)
-        case .delay: delaySend = Float(position)
-        case .reverb: reverbSend = Float(position)
+        case .filter: filter = Float(SamplerFilterSweep.amount(at: position))
+        case .pan: pan = Float(position * 2 - 1)
         case .low: eqLow = position * Self.eqRange * 2 - Self.eqRange
         case .mid: eqMid = position * Self.eqRange * 2 - Self.eqRange
         case .high: eqHigh = position * Self.eqRange * 2 - Self.eqRange
@@ -243,8 +291,8 @@ nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
         case .volume: return SamplerFaderScale.reading(of: volume)
         case .pitch: return tune > 0 ? "+\(tune)" : "\(tune)"
         case .speed: return percent(speed)
-        case .delay: return percent(Double(delaySend))
-        case .reverb: return percent(Double(reverbSend))
+        case .filter: return SamplerFilterSweep.reading(of: Double(filter))
+        case .pan: return SamplerPan.reading(of: pan)
         case .low: return decibels(eqLow)
         case .mid: return decibels(eqMid)
         case .high: return decibels(eqHigh)

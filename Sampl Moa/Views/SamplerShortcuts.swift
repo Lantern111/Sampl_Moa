@@ -2,7 +2,8 @@ import AppKit
 import SwiftUI
 
 /// The sampler's keys, mostly the same as Logic Pro's. They work while the sampler is open, and never while typing in
-/// a field. Listed in one place so the guide shows the same ones.
+/// a field. Each also works with Shift, which is how they're reached while the Mac's keyboard is playing the pads.
+/// Listed in one place so the guide shows the same ones.
 enum SamplerShortcut: CaseIterable, Identifiable {
     case record, playOrStop, stopAll, clickTrack, tapTempo, chop
 
@@ -45,7 +46,7 @@ enum SamplerShortcut: CaseIterable, Identifiable {
     /// Whether the key was one of the sampler's, in which case it's been acted on.
     static func handle(_ event: NSEvent, in sampler: SamplerStore) -> Bool {
         guard sampler.isOpen,
-              event.modifierFlags.isDisjoint(with: [.command, .control, .option, .shift]),
+              event.modifierFlags.isDisjoint(with: [.command, .control, .option]),
               !(event.window?.firstResponder is NSText),
               let shortcut = allCases.first(where: { $0.keyCodes.contains(event.keyCode) })
         else { return false }

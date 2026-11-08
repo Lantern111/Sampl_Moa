@@ -28,13 +28,18 @@ struct SamplerGuideView: View {
             systemImage: "pianokeys"
         ),
         Step(
+            title: "No Device? Use Your Mac’s Keyboard",
+            detail: "Turn on Mac Keyboard next to your device’s name. Z X C V, A S D F, Q W E R, and 1 2 3 4 play the pads in the same places as on screen, and each pad shows its key. G to ' play the keys like a piano, and − and = change the octave.",
+            systemImage: "keyboard"
+        ),
+        Step(
             title: "Choose the Part That Plays",
             detail: "The pad you hit opens on the right, and a line shows the point you’re hearing. Drag the flags to choose the part that plays. Scroll to zoom, and drag the bar below the waveform to move along.",
             systemImage: "waveform"
         ),
         Step(
             title: "Mix Like in Logic Pro",
-            detail: "Down the side of the window, like the inspector in Logic Pro, are the selected sound’s channel strip and the Master’s. The Master shapes everything together without touching each pad’s balance. Click Device Knobs on a strip to turn it with your device’s knobs. Double-click any control to put it back.",
+            detail: "Down the side of the window, like the inspector in Logic Pro, are the selected sound’s channel strip and the Master’s. The Master shapes everything together without touching each pad’s balance. Turn Filter left to cut the highs or right to cut the lows, like on a DJ mixer. Click Device Knobs on a strip to turn it with your device’s knobs.",
             systemImage: "slider.vertical.3"
         ),
         Step(
@@ -59,8 +64,8 @@ struct SamplerGuideView: View {
         ),
         Step(
             title: "Keyboard Shortcuts",
-            detail: "These work while the sampler is open, except when you’re typing in a field.",
-            systemImage: "keyboard",
+            detail: "These work while the sampler is open, except when you’re typing in a field. While your Mac’s keyboard is playing the pads, hold Shift with them.",
+            systemImage: "command",
             showsShortcuts: true
         ),
         Step(

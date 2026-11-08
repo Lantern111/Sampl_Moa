@@ -34,6 +34,7 @@ struct SamplerPanel: View {
         .padding(12)
         .frame(height: Self.height)
         .background(.background)
+        .onHover { if $0 { sampler.wakeAudio() } }
         .sheet(isPresented: Binding(
             get: { sampler.showsGuide },
             set: { if !$0 { sampler.guideWasClosed() } }
@@ -53,11 +54,22 @@ struct SamplerPanel: View {
             Circle()
                 .fill(sampler.devices.isEmpty ? Color.secondary.opacity(0.4) : Color.green)
                 .frame(width: 8, height: 8)
-            Text(verbatim: sampler.devices.isEmpty ? String(localized: "No MIDI device connected") : sampler.devices.formatted(.list(type: .and)))
+            Text(verbatim: sampler.devices.isEmpty ? String(localized: "No MIDI Device") : sampler.devices.formatted(.list(type: .and)))
                 .font(.callout)
                 .lineLimit(1)
                 .truncationMode(.tail)
             Spacer(minLength: 4)
+
+            Toggle(isOn: $sampler.playsFromComputerKeyboard) {
+                Label("Mac Keyboard", systemImage: "keyboard")
+            }
+            .toggleStyle(.button)
+            .controlSize(.small)
+            .fixedSize()
+            .help("Play the pads and keys from your Mac’s keyboard. Each pad shows its key.")
+            .onChange(of: sampler.playsFromComputerKeyboard) {
+                if sampler.playsFromComputerKeyboard { Self.stopTyping() }
+            }
 
             Menu {
                 Button("Map Pads", action: sampler.startLearningPads)
@@ -131,6 +143,12 @@ struct SamplerPanel: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+        } else if sampler.playsFromComputerKeyboard {
+            Text("Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. − and = change the octave.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -197,6 +215,9 @@ private struct SamplerPad: View {
                     ProgressView()
                         .controlSize(.mini)
                         .padding(3)
+                } else if sampler.playsFromComputerKeyboard {
+                    SamplerKeyCap(label: SamplerComputerKeyboard.label(forPad: index))
+                        .padding(4)
                 }
             }
             .overlay(alignment: .bottom) { label.padding(.horizontal, 4).padding(.bottom, 3) }
@@ -351,6 +372,11 @@ private struct SamplerKeyboardRow: View {
                     ProgressView().controlSize(.mini)
                         .help("Getting every key ready to keep the same length…")
                 }
+                if sampler.playsFromComputerKeyboard {
+                    let lowest = SamplerNote.name(of: sampler.computerKeyboardNote(semitone: 0))
+                    SamplerKeyCap(label: "G = \(lowest)")
+                        .help("G to ' play the keys, starting from \(lowest). − and = change the octave.")
+                }
                 Text(verbatim: SamplerNote.name(of: slot.rootNote))
                     .font(.callout.monospacedDigit())
                     .foregroundStyle(.secondary)
@@ -407,5 +433,20 @@ private struct SamplerKeyboardRow: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// Which key on the Mac's keyboard plays something, drawn like a key.
+private struct SamplerKeyCap: View {
+    let label: String
+
+    var body: some View {
+        Text(verbatim: label)
+            .font(.system(size: 9, weight: .semibold).monospacedDigit())
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 1)
+            .background(Color.secondary.opacity(0.18), in: .rect(cornerRadius: 3))
+            .accessibilityHidden(true)
     }
 }

@@ -67,7 +67,15 @@ final class SamplerStore {
         let count: Int
     }
 
+    /// How long the sampler stays quiet before its audio output rests. In front, the next hit should sound at once, so
+    /// it waits a good while. Behind other apps nothing can play it, since devices are only heard in front, so it rests
+    /// almost straight away.
+    private static let quietBeforeRestingInFront: Duration = .seconds(45)
+    private static let quietBeforeRestingBehind: Duration = .seconds(2)
     private static let isOpenKey = "samplerIsOpen"
+    private static let playsFromComputerKeyboardKey = "samplerPlaysFromComputerKeyboard"
+    private static let lowestComputerKeyboardOctave = -3
+    private static let highestComputerKeyboardOctave = 3
     private static let hasSeenGuideKey = "hasSeenSamplerGuideWithPermissions"
     private static let onScreenVelocity = 110
     private static let shortestRegion: TimeInterval = 0.01
@@ -108,6 +116,20 @@ final class SamplerStore {
         }
     }
 
+    /// Whether the Mac's own keyboard plays the pads and keys, for when there's no device to hand. Remembered, since
+    /// someone without a device will want it every time.
+    var playsFromComputerKeyboard = UserDefaults.standard.bool(forKey: playsFromComputerKeyboardKey) {
+        didSet {
+            guard playsFromComputerKeyboard != oldValue else { return }
+            UserDefaults.standard.set(playsFromComputerKeyboard, forKey: Self.playsFromComputerKeyboardKey)
+            if !playsFromComputerKeyboard { releaseComputerKeys() }
+        }
+    }
+    /// How many octaves up or down from middle C the Mac's keyboard plays the keys.
+    private(set) var computerKeyboardOctave = 0
+    /// What each key held down on the Mac's keyboard started, so letting go stops that even if the octave has changed.
+    @ObservationIgnored private var heldComputerKeys: [UInt16: (slot: Int, note: Int?)] = [:]
+
     /// What everything passes through on its way out.
     private(set) var master = SamplerMaster()
     /// Which strip a device's knobs turn: the selected sound's, or the master's.
@@ -136,6 +158,7 @@ final class SamplerStore {
     @ObservationIgnored private var slotsBeforeChop: [SamplerSlot]?
     @ObservationIgnored private var saveTask: Task<Void, Never>?
     @ObservationIgnored private var playheadTask: Task<Void, Never>?
+    @ObservationIgnored private var restTask: Task<Void, Never>?
     @ObservationIgnored private var peaksCache: [PeaksRequest: [Float]] = [:]
     @ObservationIgnored private var knobRemainders = [Double](repeating: 0, count: SamplerKnob.allCases.count)
     @ObservationIgnored private var deviceProfiles: [String: SamplerDeviceProfile] = [:]
@@ -145,9 +168,13 @@ final class SamplerStore {
     @ObservationIgnored private var activityObservers: [NSObjectProtocol] = []
 
     /// Plug-ins on a pad, or on everything.
-    @ObservationIgnored private(set) lazy var effects = SamplerEffects(engine: engine) { [weak self] in
-        self?.saveSoon()
-    }
+    @ObservationIgnored private(set) lazy var effects: SamplerEffects = {
+        let effects = SamplerEffects(engine: engine) { [weak self] in
+            self?.saveSoon()
+        }
+        effects.tempo = { [weak self] in self?.sequencer.pattern.bpm ?? 120 }
+        return effects
+    }()
 
     @ObservationIgnored private(set) lazy var sequencer = SamplerSequencer(mixer: engine.mixer) { [weak self] in
         self?.saveSoon()
@@ -161,7 +188,11 @@ final class SamplerStore {
         },
         onKnob: { [weak self] knob, from, to in
             guard let self else { return }
-            Self.onMain { self.turnKnob(knob, from: from, to: to) }
+            Self.onMain {
+                // A hand on the device's knobs is about to play, so the output gets ready.
+                self.wakeAudio()
+                self.turnKnob(knob, from: from, to: to)
+            }
         },
         onLearnPad: { [weak self] binding in
             guard let self else { return }
@@ -176,7 +207,12 @@ final class SamplerStore {
     init() {
         for name in [NSApplication.didBecomeActiveNotification, NSApplication.didResignActiveNotification] {
             activityObservers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.applyListening() }
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    self.applyListening()
+                    // Coming to the front wakes the output before anything is hit. Going behind lets it rest soon.
+                    if NSApplication.shared.isActive { self.wakeAudio() } else { self.restWhenQuiet() }
+                }
             })
         }
         // Left for later, because the app isn't running yet when this is first created.
@@ -206,10 +242,42 @@ final class SamplerStore {
             cancelChop()
             audioWaitTask?.cancel()
             isWaitingForAudio = false
+            restTask?.cancel()
             sequencer.stop()
             engine.stop()
         }
         applyListening()
+    }
+
+    // MARK: - Resting the audio output
+
+    /// Makes sure the output is running, starting it again if it was resting. That takes about 40 ms, so anything
+    /// that's about to play calls this as early as it can: coming to the front, the pointer reaching the sampler, a
+    /// device's knob turning. A hit from a device arrives as it is, and is heard once the output is back.
+    func wakeAudio() {
+        guard isOpen else { return }
+        engine.wake()
+        restWhenQuiet()
+    }
+
+    /// Lets the output rest once the sampler has been quiet for a while, since a running output costs battery even
+    /// in silence. Anything still ringing, like a reverb's tail on the master, gets to finish first.
+    private func restWhenQuiet() {
+        restTask?.cancel()
+        guard isOpen else { return }
+        let wait = NSApplication.shared.isActive ? Self.quietBeforeRestingInFront : Self.quietBeforeRestingBehind
+        restTask = Task {
+            try? await Task.sleep(for: wait)
+            while !Task.isCancelled, isMakingSound {
+                try? await Task.sleep(for: .seconds(1))
+            }
+            guard !Task.isCancelled else { return }
+            engine.sleep()
+        }
+    }
+
+    private var isMakingSound: Bool {
+        playheadTask != nil || sequencer.isPlaying || sequencer.isRecording || engine.masterLevel > 0.0001
     }
 
     func guideWasClosed() {
@@ -234,6 +302,7 @@ final class SamplerStore {
                 self.audioWaitTask?.cancel()
                 self.isWaitingForAudio = false
                 self.couldNotOpenAudio = !didOpen
+                self.restWhenQuiet()
             }
         }
     }
@@ -525,6 +594,7 @@ final class SamplerStore {
                 mode: .oneShot,
                 cutGroup: 0
             ))
+            wakeAudio()
             engine.mixer.noteOn(slot: SamplerMixer.auditionSlot, velocity: Self.onScreenVelocity)
         }
     }
@@ -576,17 +646,53 @@ final class SamplerStore {
 
     // MARK: - Playing
 
-    func press(_ index: Int) {
+    /// The keyboard's sound plays `note`, or its root note if there's none.
+    func press(_ index: Int, note: Int? = nil) {
         selectedSlot = index
-        let note = index == SamplerSlot.keyboardIndex ? slots[index].rootNote : nil
-        if engine.mixer.noteOn(slot: index, velocity: Self.onScreenVelocity, note: note) {
+        if engine.mixer.noteOn(slot: index, velocity: Self.onScreenVelocity, note: self.note(note, for: index)) {
             soundStarted(in: index)
         }
     }
 
-    func release(_ index: Int) {
-        let note = index == SamplerSlot.keyboardIndex ? slots[index].rootNote : nil
-        engine.mixer.noteOff(slot: index, note: note)
+    func release(_ index: Int, note: Int? = nil) {
+        engine.mixer.noteOff(slot: index, note: self.note(note, for: index))
+    }
+
+    private func note(_ note: Int?, for index: Int) -> Int? {
+        index == SamplerSlot.keyboardIndex ? note ?? slots[index].rootNote : nil
+    }
+
+    // MARK: - Playing from the Mac's keyboard
+
+    func computerKeyDown(_ key: UInt16, slot: Int, note: Int?) {
+        if let held = heldComputerKeys[key] { release(held.slot, note: held.note) }
+        heldComputerKeys[key] = (slot, note)
+        press(slot, note: note)
+    }
+
+    /// Whether the key was playing something.
+    func computerKeyUp(_ key: UInt16) -> Bool {
+        guard let held = heldComputerKeys.removeValue(forKey: key) else { return false }
+        release(held.slot, note: held.note)
+        return true
+    }
+
+    /// For when the keys being held can no longer be heard letting go, such as when another app comes to the front.
+    func releaseComputerKeys() {
+        for held in heldComputerKeys.values { release(held.slot, note: held.note) }
+        heldComputerKeys = [:]
+    }
+
+    func shiftComputerKeyboardOctave(by octaves: Int) {
+        computerKeyboardOctave = min(
+            max(computerKeyboardOctave + octaves, Self.lowestComputerKeyboardOctave),
+            Self.highestComputerKeyboardOctave
+        )
+    }
+
+    /// The note the Mac's keyboard plays for a key so many semitones above its C.
+    func computerKeyboardNote(semitone: Int) -> Int {
+        SamplerNote.middleC + 12 * computerKeyboardOctave + semitone
     }
 
     /// Whatever was just played opens in the editor, so what's on screen is always the sound being heard.
@@ -596,8 +702,10 @@ final class SamplerStore {
         startFollowingPlayheads()
     }
 
-    /// Runs only while something is sounding or the recorder is going, so a quiet sampler costs nothing.
+    /// Runs only while something is sounding or the recorder is going, so a quiet sampler costs nothing. Everything
+    /// that starts a sound or the recorder comes through here, so this is also what wakes a resting output.
     func startFollowingPlayheads() {
+        wakeAudio()
         guard playheadTask == nil else { return }
         playheadTask = Task {
             var quietTicks = 0
@@ -635,6 +743,7 @@ final class SamplerStore {
             for index in 0..<SamplerSlot.count where padStates[index].level != 0 { padStates[index].level = 0 }
             masterLevel = 0
             playheadTask = nil
+            restWhenQuiet()
         }
     }
 
@@ -895,8 +1004,8 @@ final class SamplerStore {
             live: SamplerMixer.Live(
                 volume: slot.volume,
                 semitones: Double(slot.tune) - slot.fineTune / 100,
-                delaySend: slot.delaySend,
-                reverbSend: slot.reverbSend,
+                filter: slot.filter,
+                pan: slot.pan,
                 eqLow: slot.eqLow,
                 eqMid: slot.eqMid,
                 eqHigh: slot.eqHigh

@@ -73,17 +73,28 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             store.refreshIfIdle()
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+            // Keys let go of in another app are never heard here.
+            store.sampler.releaseComputerKeys()
+        }
     }
 
-    /// The sampler's keys come first, while it's open. Then Space, Left and Right should work wherever the focus is,
+    /// The sampler's keys come first, while it's open: those that play it from the Mac's keyboard, then its shortcuts.
+    /// Then Space, Left and Right should work wherever the focus is,
     /// except while typing in a search field. An empty field doesn't count, since there's nothing to edit there yet and
     /// a field can hold focus right after launch. Settings and the welcome sheet are left alone, because these keys
     /// operate their own controls.
     private func startListeningForPlaybackKeys() {
         guard keyMonitor == nil else { return }
-        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp]) { event in
+            // Letting go of a key that's playing is heard from any window, so a note can't be left ringing.
+            if event.type == .keyUp {
+                return SamplerComputerKeyboard.handle(event, in: store.sampler) ? nil : event
+            }
             guard event.window === window else { return event }
-            if SamplerShortcut.handle(event, in: store.sampler) { return nil }
+            if SamplerComputerKeyboard.handle(event, in: store.sampler) || SamplerShortcut.handle(event, in: store.sampler) {
+                return nil
+            }
 
             let spaceKey: UInt16 = 49, leftArrow: UInt16 = 123, rightArrow: UInt16 = 124
             guard [spaceKey, leftArrow, rightArrow].contains(event.keyCode),

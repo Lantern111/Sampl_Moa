@@ -15,8 +15,9 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
     struct Live: Equatable {
         var volume: Float = 1
         var semitones = 0.0
-        var delaySend: Float = 0
-        var reverbSend: Float = 0
+        /// From -1 to 1: see `SamplerFilterSweep`.
+        var filter: Float = 0
+        var pan: Float = 0
         var eqLow = 0.0
         var eqMid = 0.0
         var eqHigh = 0.0
@@ -42,10 +43,6 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         var right: UnsafePointer<Float>
         var frameCount: Int
         var sampleRate: Double
-    }
-
-    enum Send {
-        case delay, reverb
     }
 
     /// One moment in a recorded pattern, in seconds from its start.
@@ -146,9 +143,10 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         var low = Biquad()
         var mid = Biquad()
         var high = Biquad()
+        var hasSweep = false
+        var sweep = Biquad()
         var volume: Float = 1
-        var delaySend: Float = 0
-        var reverbSend: Float = 0
+        var pan: Float = 0
         var wasSounding = false
         var isIsolated = false
         var limiterEnvelope: Float = 0
@@ -158,6 +156,8 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
     private static let commandCapacity = 512
     private static let recordingCapacity = 4096
     private static let largestBlock = 8192
+    /// Two channels each of three EQ bands and the filter knob, with two numbers each.
+    private static let filterMemoryPerSlot = 16
     /// Rounds off both ends of a sound, in frames of the file. Short enough not to dull a drum hit, long enough to
     /// stop the click that comes from cutting a sound off in the middle of a wave.
     private static let softEdge = 64.0
@@ -195,10 +195,6 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
     private let slotRight: UnsafeMutablePointer<Float>
     private let dryLeft: UnsafeMutablePointer<Float>
     private let dryRight: UnsafeMutablePointer<Float>
-    private let delayLeft: UnsafeMutablePointer<Float>
-    private let delayRight: UnsafeMutablePointer<Float>
-    private let reverbLeft: UnsafeMutablePointer<Float>
-    private let reverbRight: UnsafeMutablePointer<Float>
     /// Slots whose sound goes through plug-ins of their own, kept apart from the main mix.
     private let isolatedLeft: UnsafeMutablePointer<Float>
     private let isolatedRight: UnsafeMutablePointer<Float>
@@ -258,7 +254,7 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         waitingMixes.initialize(repeating: SlotMix(), count: Self.slotCount)
         mixes = .allocate(capacity: Self.slotCount)
         mixes.initialize(repeating: SlotMix(), count: Self.slotCount)
-        let memoryCount = Self.slotCount * 3 * 2 * 2
+        let memoryCount = Self.slotCount * Self.filterMemoryPerSlot
         filterMemory = .allocate(capacity: memoryCount)
         filterMemory.initialize(repeating: 0, count: memoryCount)
         playheads = .allocate(capacity: Self.slotCount)
@@ -281,10 +277,6 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         slotRight = buffer()
         dryLeft = buffer()
         dryRight = buffer()
-        delayLeft = buffer()
-        delayRight = buffer()
-        reverbLeft = buffer()
-        reverbRight = buffer()
         isolatedLeft = buffer(Self.largestBlock * Self.slotCount)
         isolatedRight = buffer(Self.largestBlock * Self.slotCount)
 
@@ -490,7 +482,7 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
             limiterEnvelope = 0
             for index in 0..<Self.voiceCount { voices[index].isActive = false }
             for index in 0..<Self.slotCount { playheads[index] = -1 }
-            filterMemory.update(repeating: 0, count: Self.slotCount * 3 * 2 * 2)
+            filterMemory.update(repeating: 0, count: Self.slotCount * Self.filterMemoryPerSlot)
         }
     }
 
@@ -504,6 +496,9 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         waitingMixes[index].low = Self.lowShelf(decibels: live.eqLow, rate: outputRate)
         waitingMixes[index].mid = Self.peak(decibels: live.eqMid, rate: outputRate)
         waitingMixes[index].high = Self.highShelf(decibels: live.eqHigh, rate: outputRate)
+        let sweep = Self.sweep(amount: live.filter, rate: outputRate)
+        waitingMixes[index].hasSweep = sweep != nil
+        waitingMixes[index].sweep = sweep ?? Biquad()
         mixesHaveChanged = true
     }
 
@@ -563,6 +558,30 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         Biquad(b0: Float(b0 / a0), b1: Float(b1 / a0), b2: Float(b2 / a0), a1: Float(a1 / a0), a2: Float(a2 / a0))
     }
 
+    /// The one-knob filter, or nil when it's in the middle and leaves the sound alone.
+    private static func sweep(amount: Float, rate: Double) -> Biquad? {
+        let shape = SamplerFilterSweep.shape(of: Double(amount))
+        let frequency: Double
+        let isLowPass: Bool
+        switch shape {
+        case .off: return nil
+        case .lowPass(let cutoff): (frequency, isLowPass) = (cutoff, true)
+        case .highPass(let cutoff): (frequency, isLowPass) = (cutoff, false)
+        }
+        let angle = 2 * Double.pi * min(frequency, rate * 0.45) / rate
+        let alpha = sin(angle) / (2 * SamplerFilterSweep.resonance)
+        let cosine = cos(angle)
+        let edge = isLowPass ? (1 - cosine) / 2 : (1 + cosine) / 2
+        return biquad(
+            b0: edge,
+            b1: isLowPass ? 1 - cosine : -(1 + cosine),
+            b2: edge,
+            a0: 1 + alpha,
+            a1: -2 * cosine,
+            a2: 1 - alpha
+        )
+    }
+
     /// How much the three bands raise or lower each frequency, in decibels, for drawing the EQ's curve.
     static func eqResponse(low: Double, mid: Double, high: Double, at frequencies: [Double], rate: Double = 48000) -> [Double] {
         let filters = [lowShelf(decibels: low, rate: rate), peak(decibels: mid, rate: rate), highShelf(decibels: high, rate: rate)]
@@ -592,11 +611,6 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
             (left + frames).update(repeating: 0, count: requested - frames)
             (right + frames).update(repeating: 0, count: requested - frames)
         }
-    }
-
-    /// Hands over what was sent to an effect during the last `render`.
-    func copy(_ send: Send, frames: Int, left: UnsafeMutablePointer<Float>, right: UnsafeMutablePointer<Float>) {
-        hand(from: send == .delay ? delayLeft : reverbLeft, send == .delay ? delayRight : reverbRight, frames: frames, left: left, right: right)
     }
 
     /// Hands over the sound of a slot that goes through plug-ins of its own.
@@ -634,6 +648,8 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
                     mixes[index].low = waitingMixes[index].low
                     mixes[index].mid = waitingMixes[index].mid
                     mixes[index].high = waitingMixes[index].high
+                    mixes[index].hasSweep = waitingMixes[index].hasSweep
+                    mixes[index].sweep = waitingMixes[index].sweep
                     mixes[index].isIsolated = waitingMixes[index].isIsolated
                 }
                 mixesHaveChanged = false
@@ -661,10 +677,6 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
 
         dryLeft.update(repeating: 0, count: frames)
         dryRight.update(repeating: 0, count: frames)
-        delayLeft.update(repeating: 0, count: frames)
-        delayRight.update(repeating: 0, count: frames)
-        reverbLeft.update(repeating: 0, count: frames)
-        reverbRight.update(repeating: 0, count: frames)
 
         let blockStart = transportFrame
         if isRunning { runTransport(frames: frames) }
@@ -718,6 +730,7 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         }
 
         if mixes[slot].hasEQ { applyEQ(toSlot: slot, frames: frames) }
+        if mixes[slot].hasSweep { applySweep(toSlot: slot, frames: frames) }
 
         // Notes of a chord add up to far more than one note. Turning them down together as more are held leaves room
         // for them, so a chord stays clean and only about as loud as a person would expect.
@@ -728,51 +741,49 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         // A new sound starts at the current settings. One already playing glides to them, because a jump would click.
         if !mixes[slot].wasSounding {
             mixes[slot].volume = targetVolume
-            mixes[slot].delaySend = target.delaySend
-            mixes[slot].reverbSend = target.reverbSend
+            mixes[slot].pan = target.pan
             mixes[slot].wasSounding = true
         }
 
         var volume = mixes[slot].volume
-        var delay = mixes[slot].delaySend
-        var reverb = mixes[slot].reverbSend
+        var pan = mixes[slot].pan
         let steps = Float(frames)
         let volumeStep = (targetVolume - volume) / steps
-        let delayStep = (target.delaySend - delay) / steps
-        let reverbStep = (target.reverbSend - reverb) / steps
+        let panStep = (target.pan - pan) / steps
         let outLeft = mixes[slot].isIsolated ? isolatedLeft + slot * Self.largestBlock : dryLeft
         let outRight = mixes[slot].isIsolated ? isolatedRight + slot * Self.largestBlock : dryRight
 
         var loudest: Float = 0
         for frame in 0..<frames {
             volume += volumeStep
-            delay += delayStep
-            reverb += reverbStep
-            let left = slotLeft[frame] * volume
-            let right = slotRight[frame] * volume
+            pan += panStep
+            // Panning turns down the far side and leaves the near one, so the middle is as loud as before.
+            let left = slotLeft[frame] * volume * min(1, 1 - pan)
+            let right = slotRight[frame] * volume * min(1, 1 + pan)
             loudest = max(loudest, abs(left), abs(right))
             outLeft[frame] += left
             outRight[frame] += right
-            delayLeft[frame] += left * delay
-            delayRight[frame] += right * delay
-            reverbLeft[frame] += left * reverb
-            reverbRight[frame] += right * reverb
         }
         mixes[slot].volume = targetVolume
-        mixes[slot].delaySend = target.delaySend
-        mixes[slot].reverbSend = target.reverbSend
+        mixes[slot].pan = target.pan
         levels[slot] = loudest
         heldLevels[slot] = max(heldLevels[slot], loudest)
     }
 
     private func applyEQ(toSlot slot: Int, frames: Int) {
-        let memory = filterMemory + slot * 12
+        let memory = filterMemory + slot * Self.filterMemoryPerSlot
         Self.filter(slotLeft, frames: frames, with: mixes[slot].low, memory: memory)
         Self.filter(slotRight, frames: frames, with: mixes[slot].low, memory: memory + 2)
         Self.filter(slotLeft, frames: frames, with: mixes[slot].mid, memory: memory + 4)
         Self.filter(slotRight, frames: frames, with: mixes[slot].mid, memory: memory + 6)
         Self.filter(slotLeft, frames: frames, with: mixes[slot].high, memory: memory + 8)
         Self.filter(slotRight, frames: frames, with: mixes[slot].high, memory: memory + 10)
+    }
+
+    private func applySweep(toSlot slot: Int, frames: Int) {
+        let memory = filterMemory + slot * Self.filterMemoryPerSlot + 12
+        Self.filter(slotLeft, frames: frames, with: mixes[slot].sweep, memory: memory)
+        Self.filter(slotRight, frames: frames, with: mixes[slot].sweep, memory: memory + 2)
     }
 
     private static func filter(_ samples: UnsafeMutablePointer<Float>, frames: Int, with biquad: Biquad, memory: UnsafeMutablePointer<Float>) {
