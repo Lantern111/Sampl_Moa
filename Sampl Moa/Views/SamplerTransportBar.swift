@@ -84,7 +84,6 @@ struct SamplerTransportBar: View {
             SamplerNumberField(value: sequencer.pattern.bpm, range: SamplerSequencer.bpmRange) { bpm in
                 if let bpm { sequencer.setBPM(bpm) }
             }
-            .textFieldStyle(.roundedBorder)
             .controlSize(.small)
             .multilineTextAlignment(.trailing)
             .frame(width: 44)

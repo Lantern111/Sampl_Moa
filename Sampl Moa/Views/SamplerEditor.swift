@@ -114,7 +114,6 @@ struct SamplerEditor: View {
                 SamplerNumberField(value: slot.sourceBPM, range: SamplerSequencer.bpmRange, allowsEmpty: true) { bpm in
                     sampler.setSampleTempo(bpm, of: slotIndex)
                 }
-                .textFieldStyle(.roundedBorder)
                 .controlSize(.small)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 48)
