@@ -19,8 +19,8 @@ final class SamplerPadState {
     fileprivate(set) var peaks: [Float] = []
     /// How far through that part the sound has got, from 0 to 1, or nil when it's silent.
     fileprivate(set) var progress: Double?
-    /// How loud it is right now, for its meter.
-    fileprivate(set) var level: Float = 0
+    /// How loud each side is right now, for its meters.
+    fileprivate(set) var level = SamplerLevel.silent
     /// The loudest it has been since this sound was put on or the reading was reset, shown above its fader.
     fileprivate(set) var loudest: Float = 0
 }
@@ -134,8 +134,8 @@ final class SamplerStore {
     private(set) var master = SamplerMaster()
     /// Which strip a device's knobs turn: the selected sound's, or the master's.
     var knobsTurnMaster = false
-    /// How loud the master is right now, for its meter.
-    private(set) var masterLevel: Float = 0
+    /// How loud each side of the master is right now, for its meters.
+    private(set) var masterLevel = SamplerLevel.silent
     /// The loudest the master has been since its reading was reset.
     private(set) var masterLoudest: Float = 0
 
@@ -792,24 +792,41 @@ final class SamplerStore {
                         lastTriggerCounts[index] = triggers
                     }
 
-                    // Meters rise at once and fall back gently, the way they do on a desk.
-                    let measured = engine.mixer.takeLoudest(of: index)
-                    let level = max(measured, padStates[index].level * 0.8)
-                    let shown = level < 0.001 ? 0 : level
-                    if abs(shown - padStates[index].level) > 0.002 { padStates[index].level = shown }
-                    if measured > padStates[index].loudest { padStates[index].loudest = measured }
+                    // A pad with plug-ins is measured after them, so a reverb's or delay's tail shows too.
+                    let dry = engine.mixer.takeLoudest(of: index)
+                    let measured = engine.takeLoudestAfterPlugins(of: index) ?? dry
+                    let shown = Self.meterReading(measured, after: padStates[index].level)
+                    if shown != padStates[index].level { padStates[index].level = shown }
+                    if measured.loudest > padStates[index].loudest { padStates[index].loudest = measured.loudest }
+                    if measured.loudest > Self.stillHeard { isAnythingPlaying = true }
                 }
-                let measuredMaster = engine.masterLevel
-                let master = max(measuredMaster, masterLevel * 0.8)
-                masterLevel = master < 0.001 ? 0 : master
-                if measuredMaster > masterLoudest { masterLoudest = measuredMaster }
+                let measuredMaster = engine.takeMasterLoudest()
+                let master = Self.meterReading(measuredMaster, after: masterLevel)
+                if master != masterLevel { masterLevel = master }
+                if measuredMaster.loudest > masterLoudest { masterLoudest = measuredMaster.loudest }
+                // Tails ring on after the sounds that made them have stopped, and the meters follow them down.
+                if measuredMaster.loudest > Self.stillHeard { isAnythingPlaying = true }
                 quietTicks = isAnythingPlaying ? 0 : quietTicks + 1
             }
-            for index in 0..<SamplerSlot.count where padStates[index].level != 0 { padStates[index].level = 0 }
-            masterLevel = 0
+            for index in 0..<SamplerSlot.count where padStates[index].level != .silent { padStates[index].level = .silent }
+            masterLevel = .silent
             playheadTask = nil
             restWhenQuiet()
         }
+    }
+
+    /// About -66 dB, below which a tail has as good as finished.
+    private static let stillHeard: Float = 0.0005
+
+    /// Meters rise at once and fall back gently, the way they do on a desk, each side on its own. A rise too small to
+    /// see keeps the old reading, so the meter isn't redrawn for nothing.
+    private static func meterReading(_ measured: SamplerLevel, after shown: SamplerLevel) -> SamplerLevel {
+        func side(_ measured: Float, _ shown: Float) -> Float {
+            let level = max(measured, shown * 0.8)
+            let next = level < 0.001 ? 0 : level
+            return next < shown || next - shown > 0.002 ? next : shown
+        }
+        return SamplerLevel(left: side(measured.left, shown.left), right: side(measured.right, shown.right))
     }
 
     // MARK: - Teaching the sampler a device's controls

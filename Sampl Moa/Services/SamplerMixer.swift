@@ -6,6 +6,16 @@ import os
 /// `render` runs on the audio system's real-time thread, where waiting for anything causes an audible dropout. So it
 /// never allocates, and it only picks up changes if it can do so without waiting. If another thread is busy making a
 /// change at that instant, the change simply arrives a few milliseconds later.
+/// How loud each side of a stereo sound is, from 0 up, where 1 is full scale.
+nonisolated struct SamplerLevel: Equatable, Sendable {
+    var left: Float = 0
+    var right: Float = 0
+
+    static let silent = SamplerLevel()
+
+    var loudest: Float { max(left, right) }
+}
+
 nonisolated final class SamplerMixer: @unchecked Sendable {
     /// The pads, the keyboard, and a hidden one for listening to a slice before it goes on a pad.
     static let slotCount = SamplerSlot.count + 1
@@ -187,9 +197,9 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
     private let playheads: UnsafeMutablePointer<Double>
     /// How many times each slot has started, for the pads to flash along with a recording.
     private let triggerCounts: UnsafeMutablePointer<Int>
-    /// The loudest point of each slot's last block, after its volume.
+    /// The loudest point of each slot's last block, after its volume and pan, left then right.
     private let levels: UnsafeMutablePointer<Float>
-    /// The loudest point since the screen last asked, so a short hit isn't missed between two looks.
+    /// The loudest point on each side since the screen last asked, so a short hit isn't missed between two looks.
     private let heldLevels: UnsafeMutablePointer<Float>
     private let slotLeft: UnsafeMutablePointer<Float>
     private let slotRight: UnsafeMutablePointer<Float>
@@ -261,10 +271,10 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         playheads.initialize(repeating: -1, count: Self.slotCount)
         triggerCounts = .allocate(capacity: Self.slotCount)
         triggerCounts.initialize(repeating: 0, count: Self.slotCount)
-        levels = .allocate(capacity: Self.slotCount)
-        levels.initialize(repeating: 0, count: Self.slotCount)
-        heldLevels = .allocate(capacity: Self.slotCount)
-        heldLevels.initialize(repeating: 0, count: Self.slotCount)
+        levels = .allocate(capacity: Self.slotCount * 2)
+        levels.initialize(repeating: 0, count: Self.slotCount * 2)
+        heldLevels = .allocate(capacity: Self.slotCount * 2)
+        heldLevels.initialize(repeating: 0, count: Self.slotCount * 2)
         recorded = .allocate(capacity: Self.recordingCapacity)
         recorded.initialize(repeating: RecordedNote(seconds: 0, slot: 0, velocity: 0, isNoteOff: false), count: Self.recordingCapacity)
 
@@ -462,14 +472,15 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         triggerCounts[slot]
     }
 
-    func level(of slot: Int) -> Float {
-        levels[slot]
+    func level(of slot: Int) -> SamplerLevel {
+        SamplerLevel(left: levels[slot * 2], right: levels[slot * 2 + 1])
     }
 
-    /// The loudest a slot has been since this was last asked, for its meter.
-    func takeLoudest(of slot: Int) -> Float {
-        let loudest = heldLevels[slot]
-        heldLevels[slot] = 0
+    /// The loudest a slot has been on each side since this was last asked, for its meter.
+    func takeLoudest(of slot: Int) -> SamplerLevel {
+        let loudest = SamplerLevel(left: heldLevels[slot * 2], right: heldLevels[slot * 2 + 1])
+        heldLevels[slot * 2] = 0
+        heldLevels[slot * 2 + 1] = 0
         return loudest
     }
 
@@ -725,7 +736,8 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
 
         guard isSounding else {
             mixes[slot].wasSounding = false
-            levels[slot] = 0
+            levels[slot * 2] = 0
+            levels[slot * 2 + 1] = 0
             return
         }
 
@@ -753,21 +765,25 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         let outLeft = mixes[slot].isIsolated ? isolatedLeft + slot * Self.largestBlock : dryLeft
         let outRight = mixes[slot].isIsolated ? isolatedRight + slot * Self.largestBlock : dryRight
 
-        var loudest: Float = 0
+        var loudestLeft: Float = 0
+        var loudestRight: Float = 0
         for frame in 0..<frames {
             volume += volumeStep
             pan += panStep
             // Panning turns down the far side and leaves the near one, so the middle is as loud as before.
             let left = slotLeft[frame] * volume * min(1, 1 - pan)
             let right = slotRight[frame] * volume * min(1, 1 + pan)
-            loudest = max(loudest, abs(left), abs(right))
+            loudestLeft = max(loudestLeft, abs(left))
+            loudestRight = max(loudestRight, abs(right))
             outLeft[frame] += left
             outRight[frame] += right
         }
         mixes[slot].volume = targetVolume
         mixes[slot].pan = target.pan
-        levels[slot] = loudest
-        heldLevels[slot] = max(heldLevels[slot], loudest)
+        levels[slot * 2] = loudestLeft
+        levels[slot * 2 + 1] = loudestRight
+        heldLevels[slot * 2] = max(heldLevels[slot * 2], loudestLeft)
+        heldLevels[slot * 2 + 1] = max(heldLevels[slot * 2 + 1], loudestRight)
     }
 
     private func applyEQ(toSlot slot: Int, frames: Int) {

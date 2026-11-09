@@ -154,7 +154,7 @@ struct SamplerChannelStrip: View {
     }
 
     /// Read by the fader alone, so the rest of the strip doesn't redraw as the meter moves.
-    private var level: () -> Float {
+    private var level: () -> SamplerLevel {
         switch kind {
         case .master: { [sampler] in sampler.masterLevel }
         case .sound(let index): { [sampler] in sampler.padStates[index].level }
@@ -350,7 +350,7 @@ struct SamplerFader: View {
     let position: Double
     let neutral: Double
     let reading: String
-    let level: () -> Float
+    let level: () -> SamplerLevel
     let loudest: () -> Float
     let onResetLoudest: () -> Void
     let onChange: (Double) -> Void
@@ -384,9 +384,13 @@ struct SamplerFader: View {
                         .frame(width: 34)
                     scale(travel: travel)
                         .frame(width: 22)
-                    SamplerMeter(level: current)
-                        .frame(width: 7)
-                        .padding(.vertical, Self.capHeight / 2)
+                    // Left and right, as on a desk's stereo strip.
+                    HStack(spacing: 2) {
+                        SamplerMeter(level: current.left)
+                        SamplerMeter(level: current.right)
+                    }
+                    .frame(width: 12)
+                    .padding(.vertical, Self.capHeight / 2)
                 }
                 .frame(maxWidth: .infinity)
             }
