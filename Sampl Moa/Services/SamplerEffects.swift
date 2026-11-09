@@ -129,6 +129,10 @@ final class SamplerEffects {
         ), to: slot)
     }
 
+    func dismissFailure() {
+        pluginThatFailed = nil
+    }
+
     func add(_ plugin: Available, to slot: Int?) {
         isAdding = true
         pluginThatFailed = nil
@@ -199,10 +203,21 @@ final class SamplerEffects {
         unit.auAudioUnit.fullState = settings
     }
 
+    /// Apple's own run inside the app, which costs less. Everyone else's run only in a process of their own, so one
+    /// that misbehaves can't take the app down with it. Copy-protected plug-ins, like Universal Audio's, would: they
+    /// rewrite their own code as they start, which macOS doesn't let this app run, and it's closed on the spot.
     private func load(_ plugin: Available) async -> AVAudioUnit? {
-        if plugin.manufacturerCode == kAudioUnitManufacturer_Apple, let unit = await load(plugin, options: []) { return unit }
+        if plugin.manufacturerCode == kAudioUnitManufacturer_Apple {
+            if let unit = await load(plugin, options: []) { return unit }
+            return await load(plugin, options: .loadOutOfProcess)
+        }
+        let start = ContinuousClock.now
         if let unit = await load(plugin, options: .loadOutOfProcess) { return unit }
-        return await load(plugin, options: [])
+        // Turned down quickly, as can happen while the plug-in service is still starting just after launch, it gets
+        // one more try. One that took its time already had its chance.
+        guard ContinuousClock.now - start < .seconds(5) else { return nil }
+        try? await Task.sleep(for: .seconds(1))
+        return await load(plugin, options: .loadOutOfProcess)
     }
 
     /// A plug-in can sit waiting for a licence check or anything else, so it only gets so long to answer.

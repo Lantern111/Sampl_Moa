@@ -143,6 +143,18 @@ struct SamplerPanel: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+        } else if let plugin = sampler.effects.pluginThatFailed {
+            HStack(spacing: 8) {
+                Label("\(plugin) couldn’t be loaded here.", systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                Button("OK", action: sampler.effects.dismissFailure)
+                    .controlSize(.small)
+            }
+            .font(.callout)
+            .help("Plug-ins from other makers run apart from Sampl Moa, so one that fails can’t close it. Check that it’s authorized, then try adding it again.")
         } else if sampler.playsFromComputerKeyboard {
             Text("Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. − and = change the octave.")
                 .font(.caption2)

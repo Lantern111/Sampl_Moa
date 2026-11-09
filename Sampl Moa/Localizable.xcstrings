@@ -1689,6 +1689,16 @@
         }
       }
     },
+    "OK": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인"
+          }
+        }
+      }
+    },
     "Off": {
       "localizations": {
         "ko": {
@@ -2015,6 +2025,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 소리를 건반에서도 음에 맞게 연주합니다."
+          }
+        }
+      }
+    },
+    "Plug-ins from other makers run apart from Sampl Moa, so one that fails can’t close it. Check that it’s authorized, then try adding it again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 회사의 플러그인은 Sampl Moa와 따로 실행되므로, 문제가 생겨도 앱이 꺼지지 않습니다. 플러그인 인증 상태를 확인한 뒤 다시 추가해 보세요."
           }
         }
       }
