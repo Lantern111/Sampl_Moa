@@ -5,6 +5,11 @@ struct LibraryView: View {
 
     @State private var filterBarHeight: CGFloat = 0
     @State private var bottomBarHeight: CGFloat = 0
+    /// How wide the kinds are laid out in a row, and how wide the row is, to know whether they need scrolling.
+    @State private var kindsWidth: CGFloat = 0
+    @State private var kindsRoom: CGFloat = 0
+
+    private static let kindsFade: CGFloat = 24
 
     private var visibleCategories: [SampleCategory] {
         SampleCategory.allCases.filter { store.categoryCounts[$0, default: 0] > 0 || $0 == store.category }
@@ -80,20 +85,37 @@ struct LibraryView: View {
         }
     }
 
-    /// A scope bar, the standard way to narrow a list on the Mac.
+    /// A scope bar, the standard way to narrow a list on the Mac. Always one row, so it never changes height and
+    /// pushes the list about when the window narrows, as when the sampler opens. Kinds that don't fit scroll sideways,
+    /// and the edge fades to say there's more.
     private var filterBar: some View {
-        HStack(alignment: .top, spacing: 12) {
-            FlowLayout(spacing: 2) {
-                filterButton(title: String(localized: "All"), isOn: store.category == nil) {
-                    store.category = nil
-                }
-                ForEach(visibleCategories) { category in
-                    filterButton(title: category.title, isOn: store.category == category) {
-                        store.category = category
+        HStack(spacing: 12) {
+            ScrollView(.horizontal) {
+                HStack(spacing: 2) {
+                    filterButton(title: String(localized: "All"), isOn: store.category == nil) {
+                        store.category = nil
+                    }
+                    ForEach(visibleCategories) { category in
+                        filterButton(title: category.title, isOn: store.category == category) {
+                            store.category = category
+                        }
                     }
                 }
+                .onGeometryChange(for: CGFloat.self, of: \.size.width) { kindsWidth = $0 }
+                // Room past the last kind, so scrolling to the end brings it clear of the fade.
+                .padding(.trailing, kindsOverflow ? Self.kindsFade : 0)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .scrollIndicators(.never)
+            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            .fixedSize(horizontal: false, vertical: true)
+            .onGeometryChange(for: CGFloat.self, of: \.size.width) { kindsRoom = $0 }
+            .mask {
+                HStack(spacing: 0) {
+                    Rectangle()
+                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                        .frame(width: kindsOverflow ? Self.kindsFade : 0)
+                }
+            }
 
             Picker("Genre", selection: $store.genre) {
                 Text("All Genres").tag(SampleGenre?.none)
@@ -111,6 +133,10 @@ struct LibraryView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .floatingGlass(cornerRadius: 20)
+    }
+
+    private var kindsOverflow: Bool {
+        kindsWidth > kindsRoom + 0.5
     }
 
     private func filterButton(title: String, isOn: Bool, action: @escaping () -> Void) -> some View {
@@ -172,39 +198,5 @@ struct LibraryView: View {
             }
             .buttonStyle(.borderedProminent)
         }
-    }
-}
-
-/// Lays filter buttons out in rows, wrapping when the window is too narrow for them all.
-private struct FlowLayout: Layout {
-    var spacing: CGFloat
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? .infinity
-        let origins = origins(for: subviews, width: width)
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        let right = zip(origins, sizes).map { $0.x + $1.width }.max() ?? 0
-        let bottom = zip(origins, sizes).map { $0.y + $1.height }.max() ?? 0
-        return CGSize(width: right, height: bottom)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        for (origin, subview) in zip(origins(for: subviews, width: bounds.width), subviews) {
-            subview.place(at: CGPoint(x: bounds.minX + origin.x, y: bounds.minY + origin.y), proposal: .unspecified)
-        }
-    }
-
-    private func origins(for subviews: Subviews, width: CGFloat) -> [CGPoint] {
-        var origins: [CGPoint] = []
-        var cursor = CGPoint.zero
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if cursor.x > 0, cursor.x + size.width > width {
-                cursor = CGPoint(x: 0, y: cursor.y + size.height + spacing)
-            }
-            origins.append(cursor)
-            cursor.x += size.width + spacing
-        }
-        return origins
     }
 }
