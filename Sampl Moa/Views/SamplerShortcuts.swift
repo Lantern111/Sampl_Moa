@@ -5,7 +5,7 @@ import SwiftUI
 /// a field. Each also works with Shift, which is how they're reached while the Mac's keyboard is playing the pads.
 /// Listed in one place so the guide shows the same ones.
 enum SamplerShortcut: CaseIterable, Identifiable {
-    case record, playOrStop, stopAll, clickTrack, tapTempo, chop
+    case record, playOrStop, stopAll, clickTrack, tapTempo, chop, nextBank
 
     var id: Self { self }
 
@@ -18,6 +18,7 @@ enum SamplerShortcut: CaseIterable, Identifiable {
         case .clickTrack: [40]
         case .tapTempo: [17]
         case .chop: [8]
+        case .nextBank: [11]
         }
     }
 
@@ -29,6 +30,7 @@ enum SamplerShortcut: CaseIterable, Identifiable {
         case .clickTrack: "K"
         case .tapTempo: "T"
         case .chop: "C"
+        case .nextBank: "B"
         }
     }
 
@@ -40,6 +42,7 @@ enum SamplerShortcut: CaseIterable, Identifiable {
         case .clickTrack: "Click Track"
         case .tapTempo: "Tap Tempo"
         case .chop: "Chop"
+        case .nextBank: "Next Bank"
         }
     }
 
@@ -82,6 +85,8 @@ enum SamplerShortcut: CaseIterable, Identifiable {
             if sampler.slots[index].path != nil, sampler.chopSession == nil {
                 sampler.beginChop(index)
             }
+        case .nextBank:
+            sampler.showNextBank()
         }
     }
 }

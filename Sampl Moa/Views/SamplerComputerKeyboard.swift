@@ -21,8 +21,10 @@ enum SamplerComputerKeyboard {
     private static let octaveDownKey: UInt16 = 27
     private static let octaveUpKey: UInt16 = 24
 
+    /// The key for a pad in any bank, since each bank's pads sit in the same places.
     static func label(forPad pad: Int) -> String {
-        padKeys.indices.contains(pad) ? padKeys[pad].label : ""
+        let place = pad % SamplerSlot.padsPerBank
+        return padKeys.indices.contains(place) ? padKeys[place].label : ""
     }
 
     /// Whether the key played something, or let go of something it played.
@@ -44,7 +46,8 @@ enum SamplerComputerKeyboard {
 
         let target: (slot: Int, note: Int?)
         if let pad = padKeys.firstIndex(where: { $0.keyCode == event.keyCode }) {
-            target = (pad, nil)
+            // The bank on screen, the same as a device's pads.
+            target = (SamplerSlot.pads(inBank: sampler.bank).lowerBound + pad, nil)
         } else if let key = noteKeys.first(where: { $0.keyCode == event.keyCode }) {
             target = (SamplerSlot.keyboardIndex, sampler.computerKeyboardNote(semitone: key.semitone))
         } else {

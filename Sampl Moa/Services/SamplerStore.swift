@@ -73,6 +73,7 @@ final class SamplerStore {
     private static let quietBeforeRestingInFront: Duration = .seconds(45)
     private static let quietBeforeRestingBehind: Duration = .seconds(2)
     private static let isOpenKey = "samplerIsOpen"
+    private static let bankKey = "samplerBank"
     private static let playsFromComputerKeyboardKey = "samplerPlaysFromComputerKeyboard"
     private static let lowestComputerKeyboardOctave = -3
     private static let highestComputerKeyboardOctave = 3
@@ -90,6 +91,11 @@ final class SamplerStore {
     let padStates = (0..<SamplerSlot.count).map { _ in SamplerPadState() }
     /// A pad, or `SamplerSlot.keyboardIndex`.
     var selectedSlot = 0
+    /// The bank of pads on screen, which a device's pads and the Mac's keys play. Remembered.
+    private(set) var bank = min(max(UserDefaults.standard.integer(forKey: bankKey), 0), SamplerSlot.bankCount - 1)
+    /// Shown for a moment after the device's mapping goes back to how it started, so it's clear something happened.
+    private(set) var mappingWasReset = false
+    @ObservationIgnored private var mappingNoticeTask: Task<Void, Never>?
     private(set) var devices: [String] = []
     private(set) var learning: Learning?
     private(set) var canUndoChop = false
@@ -323,6 +329,7 @@ final class SamplerStore {
         guard midi == nil else { return }
         router.setPadBindings(padBindings)
         router.setKnobControllers(knobControllers)
+        router.setBank(bank)
 
         let router = router
         midi = MIDIInput(
@@ -336,9 +343,12 @@ final class SamplerStore {
 
     // MARK: - Choosing sounds
 
-    /// Several samples fill consecutive pads. The keyboard only has room for one.
+    /// Several samples fill consecutive pads, to the end of the bank, so they all land where they can be seen. The
+    /// keyboard only has room for one.
     func assign(_ urls: [URL], toSlot first: Int) {
-        let targets: [Int] = first == SamplerSlot.keyboardIndex ? [first] : Array(first..<SamplerSlot.padCount)
+        let targets: [Int] = first == SamplerSlot.keyboardIndex
+            ? [first]
+            : Array(first..<SamplerSlot.pads(inBank: SamplerSlot.bank(of: first)).upperBound)
         for (index, url) in zip(targets, urls) {
             var slot = SamplerSlot()
             slot.path = url.path
@@ -362,6 +372,50 @@ final class SamplerStore {
         reload(index)
         forgetUnusedFiles()
         saveSoon()
+    }
+
+    /// Empties every pad in a bank, leaving their plug-ins, as clearing one pad does.
+    func clearBank(_ bank: Int) {
+        clear(Array(SamplerSlot.pads(inBank: bank)))
+    }
+
+    /// Empties every pad in every bank. The keyboard's sound stays.
+    func clearAllPads() {
+        clear(Array(0..<SamplerSlot.padCount))
+    }
+
+    private func clear(_ indices: [Int]) {
+        let filled = indices.filter { slots[$0].path != nil }
+        guard !filled.isEmpty else { return }
+        for index in filled {
+            slots[index] = SamplerSlot()
+            reload(index)
+        }
+        canUndoChop = false
+        editorGeneration += 1
+        forgetUnusedFiles()
+        saveSoon()
+    }
+
+    /// Whether a bank has any sounds, for the bank buttons.
+    func bankHasSounds(_ bank: Int) -> Bool {
+        SamplerSlot.pads(inBank: bank).contains { slots[$0].path != nil }
+    }
+
+    func showBank(_ newBank: Int) {
+        let newBank = min(max(newBank, 0), SamplerSlot.bankCount - 1)
+        guard newBank != bank else { return }
+        // The same pad in the new bank stays selected, so the editor keeps its place on the grid.
+        if selectedSlot < SamplerSlot.padCount {
+            selectedSlot = SamplerSlot.pads(inBank: newBank).lowerBound + selectedSlot % SamplerSlot.padsPerBank
+        }
+        bank = newBank
+        router.setBank(newBank)
+        UserDefaults.standard.set(newBank, forKey: Self.bankKey)
+    }
+
+    func showNextBank() {
+        showBank((bank + 1) % SamplerSlot.bankCount)
     }
 
     /// Keeps the part of the sound that's been chosen, and works out which note it is.
@@ -630,7 +684,7 @@ final class SamplerStore {
         guard var session = chopSession else { return }
         if let near = session.markers.indices.dropFirst().first(where: { abs(session.markers[$0] - fraction) < tolerance }) {
             session.markers.remove(at: near)
-        } else if session.markers.count < SamplerSlot.padCount {
+        } else if session.markers.count < SamplerSlot.padsPerBank {
             session.markers.append(fraction)
             session.markers.sort()
         }
@@ -664,20 +718,22 @@ final class SamplerStore {
         }
     }
 
-    /// Puts one slice on each pad, starting from this pad if there's room for them all.
+    /// Puts one slice on each pad of one bank, starting from this pad if there's room for them all there, and from
+    /// the start of the bank if not. The keyboard's sound is chopped onto the bank on screen.
     func applyChop() {
         guard let session = chopSession, !session.markers.isEmpty else { return }
         let index = session.slot
         let source = slots[index]
-        let starts = session.markers
+        let starts = Array(session.markers.prefix(SamplerSlot.padsPerBank))
         let isPad = index < SamplerSlot.padCount
-        let first = isPad && index + starts.count <= SamplerSlot.padCount ? index : 0
+        let pads = SamplerSlot.pads(inBank: isPad ? SamplerSlot.bank(of: index) : bank)
+        let first = isPad && index + starts.count <= pads.upperBound ? index : pads.lowerBound
 
         chopSession = nil
         slotsBeforeChop = slots
         canUndoChop = true
 
-        for (offset, sliceStart) in starts.prefix(SamplerSlot.padCount).enumerated() where first + offset < SamplerSlot.padCount {
+        for (offset, sliceStart) in starts.enumerated() where first + offset < pads.upperBound {
             var slice = source
             slice.start = sliceStart
             slice.end = offset + 1 < starts.count ? starts[offset + 1] : source.end
@@ -706,7 +762,7 @@ final class SamplerStore {
     }
 
     @concurrent nonisolated private static func findHits(in audio: SamplerAudio, from start: Int, to end: Int, threshold: Float) async -> [Int] {
-        SampleAnalysis.hits(in: audio, from: start, to: end, limit: SamplerSlot.padCount, threshold: threshold)
+        SampleAnalysis.hits(in: audio, from: start, to: end, limit: SamplerSlot.padsPerBank, threshold: threshold)
     }
 
     // MARK: - Playing
@@ -832,9 +888,10 @@ final class SamplerStore {
     // MARK: - Teaching the sampler a device's controls
 
     /// Each pad on the screen lights up in turn, and whatever the device sends next plays it from then on.
+    /// Teaches the device's 16 pads, which then play whichever bank is on screen. `.pad` counts the device's pads.
     func startLearningPads() {
         learning = .pad(0)
-        selectedSlot = 0
+        selectedSlot = SamplerSlot.pads(inBank: bank).lowerBound
         router.setLearning(.pads)
     }
 
@@ -853,9 +910,14 @@ final class SamplerStore {
     }
 
     func useStandardDeviceLayout() {
-        padBindings = SamplerKit().padBindings
-        knobControllers = SamplerKit.standardKnobControllers
-        rememberCurrentLayout()
+        applyStandardLayout()
+        mappingWasReset = true
+        mappingNoticeTask?.cancel()
+        mappingNoticeTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            mappingWasReset = false
+        }
     }
 
     /// Each device keeps its own layout, which comes back whenever it's plugged in.
@@ -870,7 +932,16 @@ final class SamplerStore {
     }
 
     func dismissUnfamiliarDevice() {
-        useStandardDeviceLayout()
+        applyStandardLayout()
+    }
+
+    private func applyStandardLayout() {
+        // Mapping halfway through would otherwise carry on and teach the next pads or knobs over the reset.
+        learning = nil
+        router.setLearning(.nothing)
+        padBindings = SamplerKit().padBindings
+        knobControllers = SamplerKit.standardKnobControllers
+        rememberCurrentLayout()
     }
 
     private func devicesChanged(to names: [String]) {
@@ -898,12 +969,12 @@ final class SamplerStore {
             padBindings[other] = padBindings[pad]
         }
         padBindings[pad] = binding
-        padStates[pad].hits += 1
+        padStates[SamplerSlot.pads(inBank: bank).lowerBound + pad].hits += 1
 
         let next = pad + 1
-        if next < SamplerSlot.padCount {
+        if next < SamplerSlot.padsPerBank {
             learning = .pad(next)
-            selectedSlot = next
+            selectedSlot = SamplerSlot.pads(inBank: bank).lowerBound + next
         } else {
             finishLearning()
         }
@@ -1122,7 +1193,9 @@ final class SamplerStore {
         export { folder in
             var files: [URL] = []
             for slot in self.sequencer.slotsWithNotes {
-                let name = slot == SamplerSlot.keyboardIndex ? "Keyboard" : String(format: "Pad %02d", slot + 1)
+                let name = slot == SamplerSlot.keyboardIndex
+                    ? "Keyboard"
+                    : "Pad " + SamplerSlot.bankName(SamplerSlot.bank(of: slot)) + String(format: "%02d", slot % SamplerSlot.padsPerBank + 1)
                 let url = folder.appending(path: "\(name).wav")
                 try await self.bounce(to: url, onlySlot: slot)
                 files.append(url)
@@ -1339,9 +1412,10 @@ final class SamplerStore {
         guard !hasLoadedKit else { return }
         hasLoadedKit = true
 
-        guard let data = try? Data(contentsOf: Self.kitFile),
-              let kit = try? JSONDecoder().decode(SamplerKit.self, from: data),
-              kit.slots.count == SamplerSlot.count, kit.padBindings.count == SamplerSlot.padCount,
+        guard let data = try? Data(contentsOf: Self.kitFile) else { return }
+        Self.keepCopyIfFromBeforeBanks(data)
+        guard let kit = try? JSONDecoder().decode(SamplerKit.self, from: data),
+              kit.slots.count == SamplerSlot.count, kit.padBindings.count == SamplerSlot.padsPerBank,
               kit.knobControllers.count == SamplerKnob.allCases.count
         else { return }
 
@@ -1354,6 +1428,17 @@ final class SamplerStore {
         sequencer.load(kit.pattern)
         slots.indices.forEach(reload)
         effects.restore(kit.plugins)
+    }
+
+    /// A kit from before there were banks is moved into bank A as it's opened, and saved that way, which a version
+    /// from before banks can't read. The kit as it was is kept beside it, once.
+    private static func keepCopyIfFromBeforeBanks(_ data: Data) {
+        guard let kit = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let slots = kit["slots"] as? [Any], slots.count == SamplerSlot.padsPerBank + 1
+        else { return }
+        let copy = kitFile.deletingLastPathComponent().appending(path: "Sampler Kit before banks.json")
+        guard !FileManager.default.fileExists(atPath: copy.path) else { return }
+        try? data.write(to: copy, options: .atomic)
     }
 
     private func saveSoon() {

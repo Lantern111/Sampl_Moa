@@ -119,7 +119,7 @@ struct SamplerChannelStrip: View {
             switch kind {
             case .master: Text("Master")
             case .sound(SamplerSlot.keyboardIndex): Text("Keyboard")
-            case .sound(let pad): Text("Pad \(pad + 1)")
+            case .sound(let pad): Text("Pad \(SamplerSlot.name(ofPad: pad))")
             }
         }
         .font(.caption.weight(.semibold))

@@ -24,7 +24,7 @@ struct SamplerGuideView: View {
         ),
         Step(
             title: "Play from Your Device",
-            detail: "Connect any MIDI controller and it’s ready to play. On an MPK mini, bank A is the bottom two rows of pads here, and bank B is the top two. For other devices, use the gear button to teach it your pads and knobs. Each device’s setup is remembered.",
+            detail: "Connect any MIDI controller and it’s ready to play. On an MPK mini, its own pad bank A plays the bottom two rows here and its bank B the top two. The A to D buttons above the pads switch between four banks of 16, for 64 sounds, and the device plays whichever is showing. For other devices, use the gear button to teach it your pads and knobs. Each device’s setup is remembered.",
             systemImage: "pianokeys"
         ),
         Step(

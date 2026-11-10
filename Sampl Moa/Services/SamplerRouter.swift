@@ -9,8 +9,12 @@ nonisolated final class SamplerRouter: @unchecked Sendable {
     }
 
     private struct State {
-        /// The pad each channel and note plays, or -1 for the keyboard's sound.
+        /// Which of a device's 16 pads each channel and note is, or -1 for the keyboard's sound.
         var pads = [Int](repeating: -1, count: 16 * 128)
+        /// Where the bank on screen starts. A device's pads play it.
+        var firstPadOfBank = 0
+        /// The pad each channel and note started, so letting go stops that one even if the bank changed meanwhile.
+        var padsPlaying = [Int](repeating: -1, count: 16 * 128)
         /// The knob each controller number turns, or -1.
         var knobs = [Int](repeating: -1, count: 128)
         /// What each controller last sent, or -1 if it hasn't been heard from.
@@ -67,6 +71,10 @@ nonisolated final class SamplerRouter: @unchecked Sendable {
         state.withLock { $0.isEnabled = isEnabled }
     }
 
+    func setBank(_ bank: Int) {
+        state.withLock { $0.firstPadOfBank = SamplerSlot.pads(inBank: bank).lowerBound }
+    }
+
     func setLearning(_ learning: Learning) {
         state.withLock { $0.learning = learning }
     }
@@ -77,7 +85,13 @@ nonisolated final class SamplerRouter: @unchecked Sendable {
             handleNoteOn(channel: channel, note: note, velocity: velocity)
 
         case .noteOff(let channel, let note):
-            let pad = state.withLock { $0.pads[Self.key(channel: channel, note: note)] }
+            let pad = state.withLock { state -> Int in
+                let key = Self.key(channel: channel, note: note)
+                guard state.pads[key] >= 0 else { return -1 }
+                let started = state.padsPlaying[key]
+                state.padsPlaying[key] = -1
+                return started >= 0 ? started : state.pads[key] + state.firstPadOfBank
+            }
             if pad >= 0 {
                 mixer.noteOff(slot: pad)
             } else {
@@ -110,7 +124,12 @@ nonisolated final class SamplerRouter: @unchecked Sendable {
     private func handleNoteOn(channel: Int, note: Int, velocity: Int) {
         let target = state.withLock { state -> (pad: Int, learning: Learning)? in
             guard state.isEnabled else { return nil }
-            return (state.pads[Self.key(channel: channel, note: note)], state.learning)
+            let key = Self.key(channel: channel, note: note)
+            let devicePad = state.pads[key]
+            guard devicePad >= 0, state.learning != .pads else { return (devicePad, state.learning) }
+            let pad = devicePad + state.firstPadOfBank
+            state.padsPlaying[key] = pad
+            return (pad, state.learning)
         }
         guard let target else { return }
 

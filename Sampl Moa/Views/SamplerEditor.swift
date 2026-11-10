@@ -43,7 +43,7 @@ struct SamplerEditor: View {
                 if isKeyboard {
                     Text("Keyboard")
                 } else {
-                    Text("Pad \(slotIndex + 1)")
+                    Text("Pad \(SamplerSlot.name(ofPad: slotIndex))")
                 }
             }
             .font(.headline)

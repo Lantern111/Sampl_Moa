@@ -183,10 +183,31 @@ nonisolated struct SamplerMaster: Codable, Equatable, Sendable {
 
 /// One sound in the sampler: a file, the part of it to play, and how to play that part.
 nonisolated struct SamplerSlot: Codable, Equatable, Sendable {
-    /// 16 pads, then the sound the keyboard plays.
-    static let padCount = 16
-    static let keyboardIndex = 16
-    static let count = 17
+    /// Four banks of 16 pads, as on an MPC, then the sound the keyboard plays. A device's 16 pads play whichever bank
+    /// is showing.
+    static let padsPerBank = 16
+    static let bankCount = 4
+    static let padCount = padsPerBank * bankCount
+    static let keyboardIndex = padCount
+    static let count = padCount + 1
+
+    static func bank(of pad: Int) -> Int {
+        pad / padsPerBank
+    }
+
+    static func bankName(_ bank: Int) -> String {
+        String(UnicodeScalar(UInt8(ascii: "A") + UInt8(bank)))
+    }
+
+    /// Like an MPC's: A1 to A16, then B1 and on.
+    static func name(ofPad pad: Int) -> String {
+        bankName(bank(of: pad)) + String(pad % padsPerBank + 1)
+    }
+
+    /// The pads of a bank, in order.
+    static func pads(inBank bank: Int) -> Range<Int> {
+        bank * padsPerBank..<(bank + 1) * padsPerBank
+    }
 
     private static let eqRange = 12.0
     private static let tuneRange = 24
@@ -341,7 +362,8 @@ nonisolated struct SamplerKit: Codable, Equatable, Sendable {
     static let standardKnobControllers = SamplerKnob.allCases.map { 70 + $0.rawValue }
 
     var slots = Array(repeating: SamplerSlot(), count: SamplerSlot.count)
-    var padBindings = (0..<SamplerSlot.padCount).map(SamplerPadBinding.standard(forPad:))
+    /// What each of a device's 16 pads sends, the same whichever bank it's playing.
+    var padBindings = (0..<SamplerSlot.padsPerBank).map(SamplerPadBinding.standard(forPad:))
     var knobControllers = standardKnobControllers
     var plugins: [SamplerPluginEntry] = []
     var deviceProfiles: [String: SamplerDeviceProfile] = [:]
@@ -360,6 +382,24 @@ nonisolated struct SamplerKit: Codable, Equatable, Sendable {
         deviceProfiles = try values.decodeIfPresent([String: SamplerDeviceProfile].self, forKey: .deviceProfiles) ?? defaults.deviceProfiles
         pattern = try values.decodeIfPresent(SamplerPattern.self, forKey: .pattern) ?? defaults.pattern
         master = try values.decodeIfPresent(SamplerMaster.self, forKey: .master) ?? defaults.master
+        moveIntoBanks()
+    }
+
+    /// Kits from before there were banks have 16 pads and then the keyboard's sound. Those pads become bank A, and
+    /// everything that pointed at the keyboard's sound, its plug-ins and the notes recorded on it, follows it to its
+    /// new place.
+    private mutating func moveIntoBanks() {
+        let oldKeyboard = SamplerSlot.padsPerBank
+        guard slots.count == oldKeyboard + 1 else { return }
+        slots = Array(slots.prefix(oldKeyboard))
+            + Array(repeating: SamplerSlot(), count: SamplerSlot.padCount - oldKeyboard)
+            + [slots[oldKeyboard]]
+        for index in plugins.indices where plugins[index].slot == oldKeyboard {
+            plugins[index].slot = SamplerSlot.keyboardIndex
+        }
+        for index in pattern.notes.indices where pattern.notes[index].slot == oldKeyboard {
+            pattern.notes[index].slot = SamplerSlot.keyboardIndex
+        }
     }
 }
 

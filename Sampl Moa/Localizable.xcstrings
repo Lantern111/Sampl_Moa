@@ -309,6 +309,26 @@
         }
       }
     },
+    "Bank %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뱅크 %@"
+          }
+        }
+      }
+    },
+    "Bank %@. B goes to the next bank.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뱅크 %@. B 키로 다음 뱅크로 넘어갑니다."
+          }
+        }
+      }
+    },
     "Bars": {
       "localizations": {
         "ko": {
@@ -489,6 +509,26 @@
         }
       }
     },
+    "Clear All Pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 패드 비우기"
+          }
+        }
+      }
+    },
+    "Clear Bank %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뱅크 %@ 비우기"
+          }
+        }
+      }
+    },
     "Clear Filters": {
       "localizations": {
         "ko": {
@@ -499,12 +539,52 @@
         }
       }
     },
+    "Clear Pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드 비우기"
+          }
+        }
+      }
+    },
     "Clear Pattern": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "패턴 지우기"
+          }
+        }
+      }
+    },
+    "Clear every pad in all four banks?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네 뱅크의 모든 패드를 비울까요?"
+          }
+        }
+      }
+    },
+    "Clear every pad in bank %@?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뱅크 %@의 모든 패드를 비울까요?"
+          }
+        }
+      }
+    },
+    "Clear pads": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드 비우기"
           }
         }
       }
@@ -595,6 +675,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "MIDI 컨트롤러를 연결하면 바로 연주할 수 있습니다. MPK mini는 뱅크 A가 화면의 아래 두 줄, 뱅크 B가 위 두 줄입니다. 다른 패드가 울리면 기기 설정을 선택하세요."
+          }
+        }
+      }
+    },
+    "Connect any MIDI controller and it’s ready to play. On an MPK mini, its own pad bank A plays the bottom two rows here and its bank B the top two. The A to D buttons above the pads switch between four banks of 16, for 64 sounds, and the device plays whichever is showing. For other devices, use the gear button to teach it your pads and knobs. Each device’s setup is remembered.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어떤 MIDI 컨트롤러든 연결하면 바로 연주할 수 있습니다. MPK mini는 기기의 패드 뱅크 A가 여기 아래 두 줄, 뱅크 B가 위 두 줄을 연주합니다. 패드 위의 A~D 버튼으로 16패드짜리 뱅크 네 개를 오가며 64개의 소리를 쓸 수 있고, 기기는 화면에 보이는 뱅크를 연주합니다. 다른 기기는 톱니바퀴 버튼에서 패드와 노브를 매핑하세요. 기기마다 설정이 기억됩니다."
           }
         }
       }
@@ -1199,6 +1289,16 @@
         }
       }
     },
+    "Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. B changes the bank, − and = the octave.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단축키는 Shift와 함께: ⇧R 녹음, ⇧K 메트로놈, ⇧C 찹. B로 뱅크를, −와 =로 옥타브를 바꿉니다."
+          }
+        }
+      }
+    },
     "Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. − and = change the octave.": {
       "localizations": {
         "ko": {
@@ -1579,6 +1679,16 @@
         }
       }
     },
+    "Next Bank": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 뱅크"
+          }
+        }
+      }
+    },
     "No Audio Files Found": {
       "localizations": {
         "ko": {
@@ -1815,6 +1925,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "팩"
+          }
+        }
+      }
+    },
+    "Pad %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드 %@"
           }
         }
       }
@@ -2289,6 +2409,16 @@
         }
       }
     },
+    "Reset MIDI Mapping": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MIDI 매핑 초기화"
+          }
+        }
+      }
+    },
     "Reset Mapping": {
       "localizations": {
         "ko": {
@@ -2692,6 +2822,16 @@
         }
       }
     },
+    "The sounds come off the pads. Their files stay where they are.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패드에서 소리만 빠집니다. 파일은 그대로 남아 있습니다."
+          }
+        }
+      }
+    },
     "The tempo this sound was recorded at. Splice and most sample names say. Type it in if it’s missing or wrong.": {
       "localizations": {
         "ko": {
@@ -2958,6 +3098,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "기기의 노브가 이 스트립을 조절합니다."
+          }
+        }
+      }
+    },
+    "Your device’s pads and knobs are mapped as they were at first.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기의 패드와 노브 매핑을 처음 상태로 되돌렸습니다."
           }
         }
       }

@@ -10,6 +10,12 @@ struct SamplerPanel: View {
     /// What's selected in the sample list, so that clicking an empty pad can fill it.
     let selectedSamples: [Sample]
 
+    private enum Clearing: Identifiable {
+        case bank(Int), all
+        var id: String { if case .bank(let bank) = self { "bank\(bank)" } else { "all" } }
+    }
+    @State private var clearing: Clearing?
+
     var body: some View {
         VStack(spacing: 8) {
             SamplerTransportBar(sampler: sampler, sequencer: sampler.sequencer)
@@ -19,6 +25,7 @@ struct SamplerPanel: View {
                 VStack(spacing: 8) {
                     deviceRow
                     notices
+                    bankRow
                     padGrid
                     SamplerKeyboardRow(sampler: sampler, selectedSamples: selectedSamples)
                 }
@@ -75,7 +82,7 @@ struct SamplerPanel: View {
                 Button("Map Pads", action: sampler.startLearningPads)
                 Button("Map Knobs", action: sampler.startLearningKnobs)
                 Divider()
-                Button("Reset Mapping", action: sampler.useStandardDeviceLayout)
+                Button("Reset MIDI Mapping", action: sampler.useStandardDeviceLayout)
             } label: {
                 Image(systemName: "gearshape")
             }
@@ -143,6 +150,13 @@ struct SamplerPanel: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+        } else if sampler.mappingWasReset {
+            Label("Your device’s pads and knobs are mapped as they were at first.", systemImage: "checkmark.circle")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         } else if let plugin = sampler.effects.pluginThatFailed {
             HStack(spacing: 8) {
                 Label("\(plugin) couldn’t be loaded here.", systemImage: "exclamationmark.triangle")
@@ -156,7 +170,7 @@ struct SamplerPanel: View {
             .font(.callout)
             .help("Plug-ins from other makers run apart from Sampl Moa, so one that fails can’t close it. Check that it’s authorized, then try adding it again.")
         } else if sampler.playsFromComputerKeyboard {
-            Text("Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. − and = change the octave.")
+            Text("Hold Shift for shortcuts: ⇧R record, ⇧K click, ⇧C chop. B changes the bank, − and = the octave.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -164,13 +178,81 @@ struct SamplerPanel: View {
         }
     }
 
+    /// Four banks of 16 pads, as on an MPC. A dot marks a bank with sounds in it.
+    private var bankRow: some View {
+        HStack(spacing: 4) {
+            ForEach(0..<SamplerSlot.bankCount, id: \.self) { bank in
+                let name = SamplerSlot.bankName(bank)
+                let isShown = sampler.bank == bank
+                Button {
+                    sampler.showBank(bank)
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(verbatim: name)
+                            .font(.system(size: 11, weight: isShown ? .bold : .medium))
+                        Circle()
+                            .fill(sampler.bankHasSounds(bank) ? Color.accentColor : Color.clear)
+                            .frame(width: 4, height: 4)
+                    }
+                    .foregroundStyle(isShown ? Color.primary : Color.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 20)
+                    .background(
+                        isShown ? Color.accentColor.opacity(0.28) : Color.secondary.opacity(0.1),
+                        in: .rect(cornerRadius: 5)
+                    )
+                    .contentShape(.rect(cornerRadius: 5))
+                }
+                .buttonStyle(.plain)
+                .help("Bank \(name). B goes to the next bank.")
+                .accessibilityLabel(Text("Bank \(name)"))
+                .accessibilityAddTraits(isShown ? .isSelected : [])
+            }
+
+            Menu {
+                Button("Clear Bank \(SamplerSlot.bankName(sampler.bank))") { clearing = .bank(sampler.bank) }
+                    .disabled(!sampler.bankHasSounds(sampler.bank))
+                Button("Clear All Pads") { clearing = .all }
+                    .disabled(!(0..<SamplerSlot.bankCount).contains(where: sampler.bankHasSounds))
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help("Clear pads")
+            .accessibilityLabel(Text("Clear pads"))
+        }
+        .confirmationDialog(
+            clearingTitle,
+            isPresented: Binding(get: { clearing != nil }, set: { if !$0 { clearing = nil } }),
+            presenting: clearing
+        ) { choice in
+            Button("Clear Pads", role: .destructive) {
+                switch choice {
+                case .bank(let bank): sampler.clearBank(bank)
+                case .all: sampler.clearAllPads()
+                }
+            }
+        } message: { _ in
+            Text("The sounds come off the pads. Their files stay where they are.")
+        }
+    }
+
+    private var clearingTitle: Text {
+        switch clearing {
+        case .bank(let bank): Text("Clear every pad in bank \(SamplerSlot.bankName(bank))?")
+        case .all, nil: Text("Clear every pad in all four banks?")
+        }
+    }
+
     /// Pad 1 sits at the bottom left and pad 16 at the top right, the same as on hardware. On a device with 8 pads
-    /// and two banks, bank A is the bottom half of this grid and bank B is the top half.
+    /// and two banks, its bank A is the bottom half of this grid and its bank B is the top half.
     private var padGrid: some View {
-        Grid(horizontalSpacing: 5, verticalSpacing: 5) {
+        let start = SamplerSlot.pads(inBank: sampler.bank).lowerBound
+        return Grid(horizontalSpacing: 5, verticalSpacing: 5) {
             ForEach([12, 8, 4, 0], id: \.self) { firstPad in
                 GridRow {
-                    ForEach(firstPad..<(firstPad + 4), id: \.self) { pad in
+                    ForEach((start + firstPad)..<(start + firstPad + 4), id: \.self) { pad in
                         SamplerPad(
                             sampler: sampler,
                             index: pad,
@@ -195,7 +277,10 @@ private struct SamplerPad: View {
     @State private var isPressed = false
     @State private var isDropTarget = false
 
-    private var isLearningHere: Bool { sampler.learning == .pad(index) }
+    /// Mapping counts the device's 16 pads, which play the bank on screen.
+    private var isLearningHere: Bool {
+        sampler.learning == .pad(index % SamplerSlot.padsPerBank) && SamplerSlot.bank(of: index) == sampler.bank
+    }
     private var isSelected: Bool { sampler.selectedSlot == index }
     private var slot: SamplerSlot { sampler.slots[index] }
 
@@ -217,7 +302,7 @@ private struct SamplerPad: View {
                     .strokeBorder(borderColor, lineWidth: isSelected || isDropTarget || isLearningHere ? 2 : 0.5)
             }
             .overlay(alignment: .topLeading) {
-                Text(verbatim: "\(index + 1)")
+                Text(verbatim: "\(index % SamplerSlot.padsPerBank + 1)")
                     .font(.system(size: 9).monospacedDigit())
                     .foregroundStyle(.secondary)
                     .padding(4)
@@ -247,7 +332,7 @@ private struct SamplerPad: View {
                 withAnimation(.easeOut(duration: 0.28)) { flash = 0 }
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Pad \(index + 1)"))
+            .accessibilityLabel(Text("Pad \(SamplerSlot.name(ofPad: index))"))
             .accessibilityValue(Text(verbatim: slot.name))
             .accessibilityAddTraits(.isButton)
             .accessibilityAction {
