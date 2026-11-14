@@ -77,6 +77,7 @@ struct SamplerChannelStrip: View {
                 position: position(of: .volume),
                 neutral: SamplerFaderScale.unityPosition,
                 reading: reading(of: .volume),
+                ticker: sampler.ticker,
                 level: level,
                 loudest: loudest,
                 onResetLoudest: { [sampler] in sampler.resetLoudest(of: slotForPlugins) },
@@ -153,7 +154,7 @@ struct SamplerChannelStrip: View {
         return nil
     }
 
-    /// Read by the fader alone, so the rest of the strip doesn't redraw as the meter moves.
+    /// Read by the meters themselves on the sampler's ticks, so nothing in the strip redraws as they move.
     private var level: () -> SamplerLevel {
         switch kind {
         case .master: { [sampler] in sampler.masterLevel }
@@ -350,6 +351,7 @@ struct SamplerFader: View {
     let position: Double
     let neutral: Double
     let reading: String
+    let ticker: SamplerTicker
     let level: () -> SamplerLevel
     let loudest: () -> Float
     let onResetLoudest: () -> Void
@@ -363,7 +365,6 @@ struct SamplerFader: View {
     ]
 
     var body: some View {
-        let current = level()
         let peak = loudest()
 
         VStack(spacing: 6) {
@@ -385,12 +386,11 @@ struct SamplerFader: View {
                     scale(travel: travel)
                         .frame(width: 22)
                     // Left and right, as on a desk's stereo strip.
-                    HStack(spacing: 2) {
-                        SamplerMeter(level: current.left)
-                        SamplerMeter(level: current.right)
-                    }
-                    .frame(width: 12)
-                    .padding(.vertical, Self.capHeight / 2)
+                    SamplerLevelBars(ticker: ticker, level: level)
+                        .frame(width: 12)
+                        .padding(.vertical, Self.capHeight / 2)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -464,38 +464,6 @@ struct SamplerFader: View {
                         .foregroundStyle(mark.decibels == 0 ? Color.primary : Color.secondary)
                 )
                 context.draw(label, at: CGPoint(x: size.width, y: y), anchor: .trailing)
-            }
-        }
-        .accessibilityHidden(true)
-    }
-}
-
-/// Green up to -12 dB, yellow up to 0 dB, and red above, where it's about to clip. Drawn on the fader's scale.
-private struct SamplerMeter: View {
-    private static let yellowFrom = SamplerFaderScale.position(of: Float(pow(10, -12.0 / 20)))
-    private static let redFrom = SamplerFaderScale.unityPosition
-
-    let level: Float
-
-    var body: some View {
-        GeometryReader { geometry in
-            let fraction = CGFloat(SamplerFaderScale.position(of: level))
-            ZStack(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: 2).fill(Color.secondary.opacity(0.18))
-                LinearGradient(
-                    stops: [
-                        .init(color: .green, location: 0),
-                        .init(color: .green, location: Self.yellowFrom - 0.02),
-                        .init(color: .yellow, location: Self.yellowFrom + 0.02),
-                        .init(color: .yellow, location: Self.redFrom - 0.015),
-                        .init(color: .red, location: Self.redFrom + 0.005),
-                    ],
-                    startPoint: .bottom,
-                    endPoint: .top
-                )
-                .mask(alignment: .bottom) {
-                    Rectangle().frame(height: geometry.size.height * fraction)
-                }
             }
         }
         .accessibilityHidden(true)

@@ -288,7 +288,9 @@ private struct SamplerPad: View {
         RoundedRectangle(cornerRadius: 8)
             .fill(fill)
             .overlay {
-                SamplerPadOutline(state: state)
+                SamplerPadWave(ticker: sampler.ticker, peaks: state.peaks, progress: { [state] in state.progress })
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
                     .padding(.horizontal, 6)
                     .padding(.top, 16)
                     .padding(.bottom, 17)
@@ -403,28 +405,6 @@ private struct SamplerPad: View {
             Divider()
             Button("Remove from Pad") { sampler.clear(index) }
         }
-    }
-}
-
-/// Split out of the pad, so that only this part redraws as the sound plays.
-private struct SamplerPadOutline: View {
-    let state: SamplerPadState
-
-    var body: some View {
-        Canvas { context, size in
-            let count = state.peaks.count
-            guard count > 0 else { return }
-            let step = size.width / CGFloat(count)
-            let progress = state.progress
-
-            for (index, peak) in state.peaks.enumerated() {
-                let height = max(1, CGFloat(peak) * size.height)
-                let rect = CGRect(x: CGFloat(index) * step, y: (size.height - height) / 2, width: max(1, step - 0.5), height: height)
-                let isPlayed = progress.map { Double(index) / Double(count) <= $0 } ?? false
-                context.fill(Path(rect), with: .color(isPlayed ? Color.accentColor : Color.secondary.opacity(0.45)))
-            }
-        }
-        .allowsHitTesting(false)
     }
 }
 

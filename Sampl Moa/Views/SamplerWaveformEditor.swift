@@ -59,7 +59,15 @@ struct SamplerWaveformEditor: View {
                     drawWaveform(in: &context, size: size)
                 }
                 .overlay {
-                    SamplerPlayhead(state: sampler.padStates[slotIndex], start: slot.start, end: slot.end, visible: visible)
+                    SamplerPlayheadLine(
+                        ticker: sampler.ticker,
+                        progress: { [state = sampler.padStates[slotIndex]] in state.progress },
+                        start: slot.start,
+                        end: slot.end,
+                        visible: visible
+                    )
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
                 }
                 .contentShape(Rectangle())
                 .gesture(waveformGesture(width: geometry.size.width))
@@ -468,30 +476,6 @@ private struct SamplerOverview: View {
                 }
             }
             .onEnded { _ in drag = .nothing }
-    }
-}
-
-/// Split out of the waveform, so that only this line redraws as the sound plays.
-private struct SamplerPlayhead: View {
-    let state: SamplerPadState
-    let start: Double
-    let end: Double
-    let visible: ClosedRange<Double>
-
-    var body: some View {
-        GeometryReader { geometry in
-            if let progress = state.progress {
-                let span = visible.upperBound - visible.lowerBound
-                let fraction = start + progress * (end - start)
-                let x = CGFloat((fraction - visible.lowerBound) / span) * geometry.size.width
-                Rectangle()
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.5), radius: 1)
-                    .frame(width: 2)
-                    .offset(x: x - 1)
-            }
-        }
-        .allowsHitTesting(false)
     }
 }
 

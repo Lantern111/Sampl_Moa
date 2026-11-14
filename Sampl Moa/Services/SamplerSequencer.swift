@@ -12,8 +12,23 @@ final class SamplerSequencer {
     private(set) var pattern = SamplerPattern()
     private(set) var isPlaying = false
     private(set) var isRecording = false
-    /// Where the music is, in beats from the start. Negative during a count-in, nil when stopped.
-    private(set) var position: Double?
+    /// Where the music is, in beats from the start. Negative during a count-in, nil when stopped. It changes on every
+    /// tick, so the screen watches `positionReading` instead, which changes once a beat.
+    @ObservationIgnored private(set) var position: Double? {
+        didSet {
+            let reading = Self.reading(of: position)
+            if reading != positionReading { positionReading = reading }
+        }
+    }
+    /// The position as the transport shows it: the bar and beat, or the number of a count-in.
+    private(set) var positionReading = SamplerSequencer.reading(of: nil)
+
+    private static func reading(of position: Double?) -> String {
+        guard let position else { return "1.1" }
+        if position < 0 { return "-\(Int(ceil(-position)))" }
+        let beat = Int(position)
+        return "\(beat / 4 + 1).\(beat % 4 + 1)"
+    }
     var isMetronomeOn = true {
         didSet { mixer.setMetronome(isMetronomeOn) }
     }

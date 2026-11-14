@@ -89,6 +89,8 @@ final class SamplerStore {
 
     private(set) var slots = SamplerKit().slots
     let padStates = (0..<SamplerSlot.count).map { _ in SamplerPadState() }
+    /// Ticks while anything sounds, for the meters and playheads to look again.
+    @ObservationIgnored let ticker = SamplerTicker()
     /// A pad, or `SamplerSlot.keyboardIndex`.
     var selectedSlot = 0
     /// The bank of pads on screen, which a device's pads and the Mac's keys play. Remembered.
@@ -863,9 +865,11 @@ final class SamplerStore {
                 // Tails ring on after the sounds that made them have stopped, and the meters follow them down.
                 if measuredMaster.loudest > Self.stillHeard { isAnythingPlaying = true }
                 quietTicks = isAnythingPlaying ? 0 : quietTicks + 1
+                ticker.tick()
             }
             for index in 0..<SamplerSlot.count where padStates[index].level != .silent { padStates[index].level = .silent }
             masterLevel = .silent
+            ticker.tick()
             playheadTask = nil
             restWhenQuiet()
         }

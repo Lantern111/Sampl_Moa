@@ -165,17 +165,10 @@ private struct SamplerPositionReadout: View {
     let sequencer: SamplerSequencer
 
     var body: some View {
-        Text(verbatim: text)
+        Text(verbatim: sequencer.positionReading)
             .font(.callout.monospacedDigit())
             .foregroundStyle(sequencer.isPlaying ? .primary : .secondary)
             .frame(width: 42, alignment: .leading)
-    }
-
-    private var text: String {
-        guard let position = sequencer.position else { return "1.1" }
-        if position < 0 { return "-\(Int(ceil(-position)))" }
-        let beat = Int(position)
-        return "\(beat / 4 + 1).\(beat % 4 + 1)"
     }
 }
 
