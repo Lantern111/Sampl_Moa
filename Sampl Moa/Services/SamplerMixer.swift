@@ -205,6 +205,8 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
     private let slotRight: UnsafeMutablePointer<Float>
     private let dryLeft: UnsafeMutablePointer<Float>
     private let dryRight: UnsafeMutablePointer<Float>
+    /// The click, kept out of the music so it goes straight to the speakers, past the master and its plug-ins.
+    private let click: UnsafeMutablePointer<Float>
     /// Slots whose sound goes through plug-ins of their own, kept apart from the main mix.
     private let isolatedLeft: UnsafeMutablePointer<Float>
     private let isolatedRight: UnsafeMutablePointer<Float>
@@ -287,6 +289,7 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         slotRight = buffer()
         dryLeft = buffer()
         dryRight = buffer()
+        click = buffer()
         isolatedLeft = buffer(Self.largestBlock * Self.slotCount)
         isolatedRight = buffer(Self.largestBlock * Self.slotCount)
 
@@ -629,6 +632,11 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         hand(from: isolatedLeft + slot * Self.largestBlock, isolatedRight + slot * Self.largestBlock, frames: frames, left: left, right: right)
     }
 
+    /// Hands over the click, the same on both sides.
+    func copyClick(frames: Int, left: UnsafeMutablePointer<Float>, right: UnsafeMutablePointer<Float>) {
+        hand(from: click, click, frames: frames, left: left, right: right)
+    }
+
     private func hand(
         from sourceLeft: UnsafePointer<Float>,
         _ sourceRight: UnsafePointer<Float>,
@@ -688,6 +696,7 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
 
         dryLeft.update(repeating: 0, count: frames)
         dryRight.update(repeating: 0, count: frames)
+        click.update(repeating: 0, count: frames)
 
         let blockStart = transportFrame
         if isRunning { runTransport(frames: frames) }
@@ -1069,7 +1078,8 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
         }
     }
 
-    /// The click comes after the limiter and isn't part of what gets recorded or exported.
+    /// The click has an output of its own, so the master's volume and plug-ins never touch it, and it isn't part of
+    /// what gets exported.
     private func addMetronome(frames: Int, startingAt start: Int) {
         let beatFrames = Int((beatLength * outputRate).rounded())
         guard beatFrames > 0 else { return }
@@ -1087,9 +1097,7 @@ nonisolated final class SamplerMixer: @unchecked Sendable {
             }
             if clickRemaining > 0 {
                 let envelope = Float(clickRemaining) / Float(clickLength)
-                let sample = Float(sin(clickPhase)) * 0.3 * envelope
-                dryLeft[frame] += sample
-                dryRight[frame] += sample
+                click[frame] = Float(sin(clickPhase)) * 0.3 * envelope
                 clickPhase += clickStep
                 clickRemaining -= 1
             }

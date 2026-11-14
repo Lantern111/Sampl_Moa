@@ -5,10 +5,9 @@ import Foundation
 
 /// How the mixer's outputs connect, the same whether they're going to the speakers or to a file:
 ///
-///     sounds ───────────────────┐
-///     a pad with plug-ins → its plug-ins ─┤
-///     delay send → delay ───────┼─→ master → master EQ and volume → master plug-ins → out
-///     reverb send → reverb ─────┘
+///     sounds ─────────────────────────────┐
+///     a pad with plug-ins → its plug-ins ─┴─→ master → master EQ and volume → master plug-ins ─┐
+///     click, only to the speakers ─────────────────────────────────────────────────────────────┴─→ out
 nonisolated enum SamplerGraph {
     struct Built {
         /// Everything attached, for taking apart later.
@@ -26,7 +25,8 @@ nonisolated enum SamplerGraph {
         format: AVAudioFormat,
         master settings: SamplerMaster,
         plugins: [AVAudioUnit],
-        slotPlugins: [Int: [AVAudioUnit]]
+        slotPlugins: [Int: [AVAudioUnit]],
+        withClick: Bool = false
     ) -> Built {
         mixer.setIsolatedSlots(Set(slotPlugins.keys))
         let masterEQ = AVAudioUnitEQ(numberOfBands: 4)
@@ -72,6 +72,17 @@ nonisolated enum SamplerGraph {
             last = plugin
         }
         engine.connect(last, to: engine.mainMixerNode, format: format)
+
+        // The click goes straight out, as a DAW's does, so it's never put through the master's plug-ins. It's connected
+        // after the music because it reads what the mixing made, and a mixer asks its inputs in order.
+        if withClick {
+            let click = source(format: format) { [mixer] frames, left, right in
+                mixer.copyClick(frames: frames, left: left, right: right)
+            }
+            nodes.append(click)
+            engine.attach(click)
+            engine.connect(click, to: engine.mainMixerNode, format: format)
+        }
         return Built(nodes: nodes, masterEQ: masterEQ, last: last, slotOutputs: slotOutputs)
     }
 
@@ -363,7 +374,15 @@ nonisolated final class SamplerEngine: @unchecked Sendable {
         outputRate = rate
         mixer.setOutputRate(rate)
 
-        let built = SamplerGraph.build(in: engine, mixer: mixer, format: format, master: master, plugins: plugins, slotPlugins: slotPlugins)
+        let built = SamplerGraph.build(
+            in: engine,
+            mixer: mixer,
+            format: format,
+            master: master,
+            plugins: plugins,
+            slotPlugins: slotPlugins,
+            withClick: true
+        )
         connectedNodes = built.nodes
         masterEQ = built.masterEQ
 
